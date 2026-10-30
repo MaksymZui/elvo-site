@@ -531,9 +531,9 @@
     width: 193.94%;
     height: 146.29%;
     fill: none;
-    stroke: var(--color-accent);
+    stroke: var(--color-text);
     stroke-linecap: round;
-    stroke-width: 1.6;
+    stroke-width: 2.2;
     opacity: 0;
     pointer-events: none;
   }

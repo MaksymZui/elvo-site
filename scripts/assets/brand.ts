@@ -18,13 +18,13 @@ await sharp(Buffer.from(favicon))
   .toFile('public/apple-touch-icon.png');
 
 const logo = await sharp('src/assets/logo.svg', { density: 300 })
-  .resize({ width: 460 })
+  .resize({ width: 340 })
   .png()
   .toBuffer();
 const shade = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><defs><linearGradient id="g"><stop offset="0" stop-color="${NAVY}" stop-opacity=".82"/><stop offset=".62" stop-color="${NAVY}" stop-opacity="0"/></linearGradient></defs><rect width="1200" height="630" fill="url(#g)"/></svg>`;
 
 await sharp('src/assets/sections/hero.webp')
   .resize(1200, 630, { fit: 'cover', position: 'right' })
-  .composite([{ input: Buffer.from(shade) }, { input: logo, left: 72, top: 256 }])
+  .composite([{ input: Buffer.from(shade) }, { input: logo, left: 64, top: 64 }])
   .jpeg({ quality: 84, mozjpeg: true })
   .toFile('public/og-image.jpg');
