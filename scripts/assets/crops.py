@@ -1,7 +1,7 @@
 """Cut final section images from the 4x masters into src/assets/sections.
 
-Boxes are in source pixels. Full frames come from the 16:10 masters in .local/work/wide-x4/ (1280x800),
-mobile crops and panels from the mockup masters in .local/work/x4/ (1280x512).
+Boxes are in source pixels. Full frames and portrait mobile crops come from the 16:10 masters in
+.local/work/wide-x4/ (1280x800), panels from the mockup masters in .local/work/x4/ (1280x512).
 
 Run: .local/venv/Scripts/python.exe -I scripts/assets/crops.py
 """
@@ -21,12 +21,16 @@ QUALITY = 90
 
 FRAMES = {"hero": 1, "drones": 2, "payload": 3, "fiber": 4}
 
+# Same focus as the mockup crops, with height to spare: they fill half a phone screen
+WIDE_CROPS: dict[str, tuple[int, tuple[int, int, int, int]]] = {
+    "hero-mobile": (1, (585, 16, 1200, 785)),
+    "drones-dji": (2, (235, 212, 775, 627)),
+    "drones-autel": (2, (770, 225, 1280, 617)),
+    "payload-mobile": (3, (0, 52, 640, 748)),
+    "fiber-mobile": (4, (470, 80, 1130, 797)),
+}
+
 CROPS: dict[str, tuple[int, tuple[int, int, int, int]]] = {
-    "hero-mobile": (1, (585, 0, 1200, 512)),
-    "drones-dji": (2, (235, 140, 775, 410)),
-    "drones-autel": (2, (770, 150, 1280, 405)),
-    "payload-mobile": (3, (0, 0, 640, 512)),
-    "fiber-mobile": (4, (470, 120, 1130, 470)),
     "panel-camera": (5, (8, 6, 392, 186)),
     "panel-propeller": (5, (470, 4, 904, 122)),
     "panel-transmitter": (5, (980, 4, 1274, 178)),
@@ -52,10 +56,11 @@ def main() -> None:
     for name, source in FRAMES.items():
         save(Image.open(WIDE_X4 / f"{source}.png").convert("RGB"), name)
 
-    masters: dict[int, Image.Image] = {}
-    for name, (source, box) in CROPS.items():
-        master = masters.setdefault(source, Image.open(X4 / f"{source}.png").convert("RGB"))
-        save(master.crop(tuple(v * SCALE for v in box)), name)
+    for folder, crops in ((WIDE_X4, WIDE_CROPS), (X4, CROPS)):
+        masters: dict[int, Image.Image] = {}
+        for name, (source, box) in crops.items():
+            master = masters.setdefault(source, Image.open(folder / f"{source}.png").convert("RGB"))
+            save(master.crop(tuple(v * SCALE for v in box)), name)
 
 
 if __name__ == "__main__":

@@ -21,12 +21,23 @@
   --spacing-gutter: 1.25rem;
   --spacing-header: 4rem;
   --spacing-footer: 5.8125rem;
+  --spacing-section: 3rem;
+  --spacing-stack: 1.5rem;
+  --spacing-media: clamp(13.75rem, 52svh, min(120vw, 30rem));
+  --spacing-hero-media: clamp(13.75rem, 40svh, 26rem);
+  --spacing-model: clamp(13rem, 36svh, 20rem);
 
   --radius-panel: 1rem;
   --radius-card: 1.5rem;
   --radius-control: 0.75rem;
 
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 431px) {
+  :root {
+    --spacing-section: 4rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -517,10 +528,10 @@
   /* Section 4 */
   .fiber-light {
     position: absolute;
-    top: -75.43%;
+    top: -11.16%;
     left: -71.21%;
     width: 193.94%;
-    height: 228.57%;
+    height: 111.59%;
     fill: none;
     stroke: var(--color-text);
     stroke-linecap: round;
@@ -950,6 +961,174 @@ html.slider main:not(.swiper-initialized):has(.screen:target) .screen:not(:targe
   pointer-events: none;
   transition-property: opacity;
   transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Scrolling mode: phones, low windows, reduced motion, no JS. Sections take the height of their
+   content. Everything is under :not(.slider), so slides keep their full-screen layout */
+html:not(.slider) {
+  scroll-padding-top: var(--spacing-header);
+}
+
+html:not(.slider) .screen,
+html:not(.slider) .screen__body {
+  min-height: 0;
+}
+
+html:not(.slider) .screen__body {
+  gap: var(--spacing-stack);
+  justify-content: flex-start;
+  padding-block: var(--spacing-section);
+}
+
+html:not(.slider) .stage__copy {
+  padding-block: 0;
+}
+
+html:not(.slider) .models {
+  padding-block-end: 0;
+}
+
+html:not(.slider) .solutions__grid {
+  margin-block-start: 0;
+}
+
+html:not(.slider) .contact {
+  gap: 0;
+  padding-block-end: 0;
+}
+
+html:not(.slider) .contact__inner {
+  margin-block: 0;
+  padding-block: 0 var(--spacing-section);
+}
+
+/* Without full-height sections they need something to tell them apart */
+html:not(.slider) #payload .screen__body {
+  background: var(--color-bg);
+}
+
+html:not(.slider) .screen + .screen::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-line) 20%,
+    var(--color-line) 80%,
+    transparent
+  );
+}
+
+/* The first screen stays full: photo on top, text at the bottom edge */
+html:not(.slider) .stage--hero {
+  gap: 0;
+  justify-content: flex-end;
+  min-height: 100svh;
+  padding-block: 0;
+}
+
+html:not(.slider) .stage--hero .stage__copy {
+  padding-block: var(--spacing-stack) var(--spacing-section);
+}
+
+@media not all and (min-width: 1024px) and (min-aspect-ratio: 3/2) {
+  html:not(.slider) .stage--hero .stage__media {
+    display: block;
+    flex: 1 0 var(--spacing-hero-media);
+    aspect-ratio: auto;
+  }
+
+  html:not(.slider) .stage--hero .frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  html:not(.slider) .stage--hero picture,
+  html:not(.slider) .stage--hero img {
+    width: 100%;
+    height: 100%;
+  }
+
+  html:not(.slider) .stage--hero img {
+    object-fit: cover;
+    object-position: 72% 46%;
+  }
+}
+
+@media (max-width: 767px) {
+  html:not(.slider) .stage--hero img {
+    object-position: 50% 45%;
+  }
+
+  /* Same as cover for a 0.92 crop, but the light lines stay on the fibers */
+  html:not(.slider) .stage__media:not(.hidden) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--spacing-media);
+  }
+
+  html:not(.slider) .stage--hero .stage__media {
+    height: auto;
+  }
+
+  html:not(.slider) .stage__media .frame {
+    flex: none;
+    width: max(100%, calc(var(--spacing-media) * 0.92));
+    aspect-ratio: 0.92;
+  }
+
+  html:not(.slider) .stage--hero .stage__media .frame {
+    width: 100%;
+    aspect-ratio: auto;
+  }
+
+  html:not(.slider) .frame picture,
+  html:not(.slider) .frame img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Two drones in one section: half a screen each would cut them and fill a screen and a half */
+  html:not(.slider) .models {
+    gap: var(--spacing-section);
+    padding-inline: 0;
+  }
+
+  html:not(.slider) .model__image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--spacing-model);
+    overflow: hidden;
+  }
+
+  html:not(.slider) .model__image img {
+    flex: none;
+    width: max(100%, calc(var(--spacing-model) * 1.3));
+    max-width: none;
+    border-radius: 0;
+  }
+
+  html:not(.slider) .model__name {
+    padding-inline: var(--spacing-gutter);
+  }
+}
+
+/* Text over the photo: the photo is the content, so the section keeps its size */
+@media (min-width: 1024px) and (min-aspect-ratio: 3/2) {
+  html:not(.slider) .stage {
+    gap: 0;
+    justify-content: center;
+    min-height: 100svh;
+    padding-block: var(--spacing-header) 0;
+  }
 }
 
 /* Slide dots */
