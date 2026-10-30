@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Tailwind scans the repo: "contents: read" in the workflow would become a class */
+@source not '../../.github';
+
 /* Text over a full-bleed photo: only where the 16:10 frame leaves room beside the subject */
 @custom-variant wide (@media (min-width: 1024px) and (min-aspect-ratio: 3/2));
 
