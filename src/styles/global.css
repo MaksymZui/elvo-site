@@ -887,6 +887,7 @@ html.slider .screen__body {
   height: 100%;
   min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* A linked slide shows at once instead of the hero flashing first */
@@ -899,6 +900,10 @@ html.slider main:not(.swiper-initialized):has(.screen:target) .screen:not(:targe
   html.slider .stage__media {
     height: min(40vw, 45svh);
     aspect-ratio: auto;
+  }
+
+  html.slider .panel {
+    max-height: 20svh;
   }
 }
 
@@ -934,7 +939,66 @@ html.slider main:not(.swiper-initialized):has(.screen:target) .screen:not(:targe
   transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* Anchors move focus to the section: the scroll already shows where it went */
+/* Slide dots */
+.dots {
+  position: absolute;
+  z-index: 20;
+  top: 50%;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(-50%);
+}
+
+.dots__bullet {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  cursor: pointer;
+}
+
+.dots__bullet::before {
+  content: '';
+  width: 0.625rem;
+  height: 0.625rem;
+  border: 1px solid var(--color-muted);
+  border-radius: 50%;
+  transition:
+    background-color 300ms var(--ease-soft),
+    transform 300ms var(--ease-soft);
+}
+
+.dots__bullet--active::before {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  transform: scale(1.25);
+}
+
+.dots__label {
+  position: absolute;
+  right: 100%;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-bg) 90%, transparent);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(0.5rem);
+  transition:
+    opacity 300ms var(--ease-soft),
+    transform 300ms var(--ease-soft);
+}
+
+.dots__bullet:hover .dots__label,
+.dots__bullet:focus-visible .dots__label {
+  opacity: 1;
+  transform: none;
+}
+
+/* Focus moves to the active slide: its arrival already shows where focus went */
 .screen:focus {
   outline: none;
 }

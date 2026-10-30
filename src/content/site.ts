@@ -21,6 +21,7 @@ export const site = {
   contactLabel: 'Contact',
   menu: { open: 'Open menu', close: 'Close menu', label: 'Main' },
   homeLabel: 'ELVO home',
+  sectionsLabel: 'Sections',
   sections: {
     top: 'Home',
     drones: 'Drones',
