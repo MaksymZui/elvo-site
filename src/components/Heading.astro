@@ -12,14 +12,16 @@ const { as: Tag = 'h2', lines, class: className, ...rest } = Astro.props;
 
 <Tag class:list={['display', className]} data-split {...rest}>
   {lines.map((line) => (
-    <span class="block">
-      {line.map((part) =>
-        typeof part === 'string' ? (
-          part
-        ) : (
-          <span class={part.accent ? 'text-accent' : undefined}>{part.text}</span>
-        ),
-      )}
-    </span>
+    <>
+      <span class="block">
+        {line.map((part) =>
+          typeof part === 'string' ? (
+            part
+          ) : (
+            <span class={part.accent ? 'text-accent' : undefined}>{part.text}</span>
+          ),
+        )}
+      </span>{' '}
+    </>
   ))}
 </Tag>
