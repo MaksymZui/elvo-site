@@ -1,0 +1,19 @@
+# deps and build
+node_modules/
+dist/
+.astro/
+
+# local tools, models, previews, reports
+.local/
+
+# python
+__pycache__/
+
+# env
+.env
+.env.*
+
+# os and editor
+.DS_Store
+Thumbs.db
+.vscode/
