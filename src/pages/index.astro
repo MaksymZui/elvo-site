@@ -1,0 +1,46 @@
+---
+import hero from '../assets/sections/hero.webp';
+import heroMobile from '../assets/sections/hero-mobile.webp';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Contact from '../components/sections/Contact.astro';
+import Drones from '../components/sections/Drones.astro';
+import Fiber from '../components/sections/Fiber.astro';
+import Hero from '../components/sections/Hero.astro';
+import Payload from '../components/sections/Payload.astro';
+import Solutions from '../components/sections/Solutions.astro';
+import Base from '../layouts/Base.astro';
+import { artSources } from '../lib/art';
+
+const heroPreloads = (await artSources(heroMobile, hero, '100vw')).filter(
+  (source) => source.type === 'image/avif',
+);
+---
+
+<Base>
+  <Fragment slot="head">
+    {
+      heroPreloads.map((source) => (
+        <link
+          rel="preload"
+          as="image"
+          type={source.type}
+          media={source.media}
+          imagesrcset={source.srcset}
+          imagesizes={source.sizes}
+          fetchpriority="high"
+        />
+      ))
+    }
+  </Fragment>
+  <Header />
+  <main id="main">
+    <Hero />
+    <Drones />
+    <Payload />
+    <Fiber />
+    <Solutions />
+    <Contact />
+  </main>
+  <Footer />
+</Base>

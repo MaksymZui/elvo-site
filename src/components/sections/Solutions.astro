@@ -1,0 +1,53 @@
+---
+import { Picture } from 'astro:assets';
+import Logo from '../../assets/logo.svg';
+import camera from '../../assets/sections/panel-camera.webp';
+import chip from '../../assets/sections/panel-chip.webp';
+import fiber from '../../assets/sections/panel-fiber.webp';
+import frame from '../../assets/sections/panel-frame.webp';
+import fpv from '../../assets/sections/panel-fpv.webp';
+import goggles from '../../assets/sections/panel-goggles.webp';
+import propeller from '../../assets/sections/panel-propeller.webp';
+import transmitter from '../../assets/sections/panel-transmitter.webp';
+import { site } from '../../content/site';
+import Heading from '../Heading.astro';
+
+const { heading, text, panels } = site.solutions;
+
+const images = [
+  { name: 'camera', src: camera, alt: panels.camera },
+  { name: 'propeller', src: propeller, alt: panels.propeller },
+  { name: 'transmitter', src: transmitter, alt: panels.transmitter },
+  { name: 'frame', src: frame, alt: panels.frame },
+  { name: 'fpv', src: fpv, alt: panels.fpv },
+  { name: 'fiber', src: fiber, alt: panels.fiber },
+  { name: 'chip', src: chip, alt: panels.chip },
+  { name: 'goggles', src: goggles, alt: panels.goggles },
+];
+---
+
+<section id="solutions" class="solutions px-gutter" data-section>
+  <div class="solutions__grid">
+    <div class="solutions__card">
+      <div class="copy">
+        <Logo class="solutions__logo" aria-hidden="true" data-reveal />
+        <Heading lines={heading} data-reveal />
+        <p class="lead" data-reveal>{text}</p>
+      </div>
+    </div>
+    {
+      images.map((image) => (
+        <Picture
+          pictureAttributes={{ class: `panel panel--${image.name}`, 'data-panel': true }}
+          src={image.src}
+          alt={image.alt}
+          formats={['avif', 'webp']}
+          fallbackFormat="webp"
+          widths={[360, 768, 1280]}
+          sizes="(min-width: 1024px) 34vw, 50vw"
+          quality={60}
+        />
+      ))
+    }
+  </div>
+</section>

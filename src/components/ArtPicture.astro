@@ -1,0 +1,43 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getImage } from 'astro:assets';
+import { artSources } from '../lib/art';
+
+interface Props {
+  mobile: ImageMetadata;
+  desktop: ImageMetadata;
+  alt: string;
+  sizes?: string;
+  eager?: boolean;
+  class?: string;
+}
+
+const { mobile, desktop, alt, sizes = '100vw', eager = false, class: className } = Astro.props;
+
+const sources = await artSources(mobile, desktop, sizes);
+const fallback = await getImage({ src: desktop, format: 'webp', width: 1280, quality: 72 });
+---
+
+<picture class={className}>
+  {
+    sources.map((source) => (
+      <source
+        media={source.media}
+        type={source.type}
+        srcset={source.srcset}
+        sizes={source.sizes}
+        width={source.width}
+        height={source.height}
+      />
+    ))
+  }
+  <img
+    src={fallback.src}
+    alt={alt}
+    width={desktop.width}
+    height={desktop.height}
+    loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
+    decoding={eager ? 'sync' : 'async'}
+  />
+</picture>

@@ -1,0 +1,20 @@
+---
+import { site } from '../content/site';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+const [first, second, third] = site.tagline;
+---
+
+<p class:list={['tagline', className]}>
+  {first}
+  <span class="tagline__dot bg-brand" aria-hidden="true"></span>
+  <span class="sr-only">,</span>
+  {second}
+  <span class="tagline__dot bg-brand-yellow" aria-hidden="true"></span>
+  <span class="sr-only">,</span>
+  {third}
+</p>

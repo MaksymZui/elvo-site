@@ -1,0 +1,73 @@
+---
+import { Image } from 'astro:assets';
+import Logo from '../../assets/logo.svg';
+import droneTop from '../../assets/drone-top.webp';
+import { site } from '../../content/site';
+import Icon from '../Icon.astro';
+import Tagline from '../Tagline.astro';
+
+const { company, address, emailLabel, addressLabel } = site.contact;
+const mailto = `mailto:${site.email}`;
+---
+
+<section id="contact" class="contact" data-section>
+  <svg
+    class="contact__decor"
+    viewBox="0 0 1280 512"
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient id="decor-stroke" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="var(--color-accent)" />
+        <stop offset="1" stop-color="var(--color-brand)" stop-opacity="0" />
+      </linearGradient>
+      <linearGradient id="decor-fill" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="var(--color-brand)" stop-opacity=".16" />
+        <stop offset="1" stop-color="var(--color-brand)" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <g fill="url(#decor-fill)" stroke="url(#decor-stroke)" stroke-width="1.5">
+      <path d="M130 128H281L60 512H-90Z" />
+      <path d="M96 420H262L200 512H34Z" />
+      <path d="M1064 222H1140L970 512H894Z" />
+      <path d="M1296 20V282H1106Z" />
+    </g>
+    <g stroke="var(--color-brand)" stroke-opacity=".5" fill="none">
+      <path d="M0 230 160 0" />
+      <path d="M30 512 310 0" />
+      <path d="M1140 512 1280 270" />
+      <path d="M880 512 1240 0" />
+    </g>
+  </svg>
+
+  <div class="contact__inner px-gutter">
+    <div class="copy contact__block">
+      <Logo class="contact__logo" aria-hidden="true" data-reveal />
+      <div data-reveal><Tagline /></div>
+      <span class="glow-line" aria-hidden="true" data-reveal></span>
+      <ul class="contact__list">
+        <li class="contact__row" data-reveal>
+          <Icon name="mail" class="contact__icon" />
+          <span class="sr-only">{emailLabel}</span>
+          <a class="contact__mail" href={mailto}>{site.email}</a>
+        </li>
+        <li class="contact__row" data-reveal>
+          <Icon name="map-pin" class="contact__icon" />
+          <span class="sr-only">{addressLabel}</span>
+          <address class="not-italic">
+            {company}<br />
+            {address[0]}<br />
+            {address[1]}
+          </address>
+        </li>
+      </ul>
+    </div>
+    <div class="contact__cta" data-reveal>
+      <a class="btn" href={mailto}>{site.contactLabel}</a>
+      <div class="drone-slot" data-drone-slot>
+        <Image src={droneTop} alt="" width={240} format="webp" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>

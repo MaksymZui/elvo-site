@@ -1,0 +1,65 @@
+---
+import { Picture } from 'astro:assets';
+import drones from '../../assets/sections/drones.webp';
+import dji from '../../assets/sections/drones-dji.webp';
+import autel from '../../assets/sections/drones-autel.webp';
+import { site } from '../../content/site';
+import Heading from '../Heading.astro';
+
+const { heading, imageAlt, models } = site.drones;
+const crops = { dji, autel };
+const formats = ['avif', 'webp'] as ('avif' | 'webp')[];
+---
+
+<section id="drones" class="stage stage--drones" data-section>
+  <div class="stage__media hidden lg:block" data-reveal>
+    <Picture
+      src={drones}
+      alt={imageAlt}
+      formats={formats}
+      fallbackFormat="webp"
+      widths={[1280, 1920]}
+      sizes="100vw"
+      quality={60}
+    />
+  </div>
+
+  <div class="stage__copy px-gutter">
+    <div class="copy">
+      <Heading lines={heading} class="display--compact" data-reveal />
+    </div>
+  </div>
+
+  <div class="models px-gutter lg:px-0">
+    {
+      models.map((model) => (
+        <figure class={`model model--${model.id}`}>
+          <Picture
+            pictureAttributes={{ class: 'model__image lg:hidden', 'data-reveal': true }}
+            src={crops[model.id as keyof typeof crops]}
+            alt={model.alt}
+            formats={formats}
+            fallbackFormat="webp"
+            widths={[360, 768, 1280]}
+            sizes="(min-width: 768px) 50vw, 100vw"
+            quality={60}
+          />
+          <figcaption class="model__name copy" data-reveal>{model.name}</figcaption>
+        </figure>
+      ))
+    }
+  </div>
+
+  <svg
+    class="callouts"
+    viewBox="0 0 1280 512"
+    preserveAspectRatio="xMidYMid slice"
+    aria-hidden="true"
+    data-reveal
+  >
+    <path d="M697 152H570L549 174" stroke="var(--color-icon)" />
+    <circle cx="548" cy="175" r="3" fill="var(--color-brand)" />
+    <path d="M1226 164H1070L1046 183" stroke="var(--color-brand-yellow)" />
+    <circle cx="1045" cy="184" r="3" fill="var(--color-brand-yellow)" />
+  </svg>
+</section>

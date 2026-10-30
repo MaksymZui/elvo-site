@@ -1,0 +1,41 @@
+---
+import fiber from '../../assets/sections/fiber.webp';
+import fiberMobile from '../../assets/sections/fiber-mobile.webp';
+import { site } from '../../content/site';
+import ArtPicture from '../ArtPicture.astro';
+import Heading from '../Heading.astro';
+
+const { heading, standard, text, imageAlt } = site.fiber;
+
+// Light runs from the cable end to the fiber tips, in mockup pixels
+const lines = [
+  'M884 292C780 290 690 300 533 297',
+  'M884 300C770 306 660 316 487 323',
+  'M886 310C770 320 650 345 510 381',
+  'M880 296C800 280 700 276 587 279',
+  'M884 318C790 340 700 366 608 400',
+];
+---
+
+<section id="fiber" class="stage stage--fiber" data-section>
+  <div class="stage__media" data-reveal>
+    <ArtPicture mobile={fiberMobile} desktop={fiber} alt={imageAlt} />
+    <svg
+      class="fiber-light"
+      viewBox="0 0 1280 512"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+      data-fiber-light
+    >
+      {lines.map((d) => <path d={d} />)}
+    </svg>
+  </div>
+  <div class="stage__copy px-gutter">
+    <div class="copy">
+      <Heading lines={heading} class="display--one-line" data-reveal />
+      <p class="standard" data-reveal>{standard}</p>
+      <span class="rule" aria-hidden="true" data-reveal></span>
+      <p class="lead lead--narrow" data-reveal>{text}</p>
+    </div>
+  </div>
+</section>

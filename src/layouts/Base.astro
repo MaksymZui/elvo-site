@@ -1,0 +1,56 @@
+---
+import { Font } from 'astro:assets';
+import { site } from '../content/site';
+import '../styles/global.css';
+
+const canonical = new URL('/', site.url).href;
+const ogImage = new URL('/og-image.jpg', site.url).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.title}</title>
+    <meta name="description" content={site.description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#001027" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={site.ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={site.title} />
+    <meta name="twitter:description" content={site.description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <Font cssVariable="--font-anybody" preload />
+    <slot name="head" />
+
+    <!-- Hides reveal targets only when motion will really run. The timer restores them if it does not. -->
+    <script is:inline>
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        var root = document.documentElement;
+        root.classList.add('motion');
+        window.__motionGuard = setTimeout(function () {
+          root.classList.remove('motion');
+        }, 2500);
+      }
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{site.skipLink}</a>
+    <slot />
+  </body>
+</html>

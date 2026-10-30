@@ -1,0 +1,21 @@
+---
+import payload from '../../assets/sections/payload.webp';
+import payloadMobile from '../../assets/sections/payload-mobile.webp';
+import { site } from '../../content/site';
+import ArtPicture from '../ArtPicture.astro';
+import Heading from '../Heading.astro';
+
+const { heading, text, imageAlt } = site.payload;
+---
+
+<section id="payload" class="stage stage--payload" data-section>
+  <div class="stage__media" data-reveal>
+    <ArtPicture mobile={payloadMobile} desktop={payload} alt={imageAlt} />
+  </div>
+  <div class="stage__copy px-gutter">
+    <div class="copy lg:ml-auto lg:w-[47%]">
+      <Heading lines={heading} data-reveal />
+      <p class="lead" data-reveal>{text}</p>
+    </div>
+  </div>
+</section>
