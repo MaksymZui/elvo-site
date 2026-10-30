@@ -91,7 +91,7 @@
   }
 
   .display--hero {
-    font-size: clamp(2rem, 9.4vw, 2.75rem);
+    font-size: clamp(1.875rem, 8.7vw, 2.75rem);
   }
 
   .lead {
@@ -454,7 +454,6 @@
       justify-content: center;
       padding-block-start: 0;
     }
-
   }
 
   /* Section 2 */
@@ -568,6 +567,10 @@
     background: var(--color-surface);
   }
 
+  .solutions__card .display {
+    font-size: clamp(1.5rem, 6.9vw, 2.25rem);
+  }
+
   .solutions__logo {
     width: auto;
     height: 2.25rem;
@@ -662,7 +665,11 @@
     position: relative;
     overflow: hidden;
     padding-block: var(--spacing-section);
-    background: radial-gradient(ellipse at 50% 30%, var(--color-surface-2), var(--color-bg-deep) 70%);
+    background: radial-gradient(
+      ellipse at 50% 30%,
+      var(--color-surface-2),
+      var(--color-bg-deep) 70%
+    );
   }
 
   .contact__decor {
@@ -809,9 +816,104 @@
   }
 }
 
+/* Drone: viewport layer between images (z 0) and text (z 20) */
+.drone {
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100lvh;
+  overflow: clip;
+  pointer-events: none;
+}
+
+.drone__probe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100lvh;
+  visibility: hidden;
+}
+
+.drone__route {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
+}
+
+.drone__pos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--spacing-drone);
+  margin-top: calc(var(--spacing-drone) * -0.27);
+  margin-left: calc(var(--spacing-drone) * -0.5);
+  will-change: transform;
+}
+
+.drone__bob {
+  animation: drone-bob 2.8s ease-in-out infinite alternate;
+}
+
+.is-landed .drone__bob {
+  animation: none;
+}
+
+.drone__flip {
+  transition: transform 320ms var(--ease-soft);
+}
+
+.drone__flip.is-flipped {
+  transform: scaleX(-1);
+}
+
+.drone__tilt {
+  position: relative;
+  aspect-ratio: 480 / 258;
+}
+
+/* Lifts the dark body off dark sections; a gradient, not drop-shadow, stays cheap while moving */
+.drone__tilt::before {
+  content: '';
+  position: absolute;
+  inset: -55% -24%;
+  background: radial-gradient(closest-side, rgb(116 164 230 / 32%), transparent);
+}
+
+.drone__side,
+.drone__top {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  translate: 0 -50%;
+}
+
+.drone__top {
+  opacity: 0;
+}
+
+@keyframes drone-bob {
+  from {
+    transform: translateY(-3px);
+  }
+  to {
+    transform: translateY(3px);
+  }
+}
+
 /* Reveal targets wait for motion.ts; without the class they are simply visible */
 html.motion [data-reveal],
 html.motion [data-split],
 html.motion [data-panel] {
   opacity: 0;
+}
+
+/* Overscan for the hero parallax */
+html.motion [data-parallax] img {
+  scale: 1.08;
 }

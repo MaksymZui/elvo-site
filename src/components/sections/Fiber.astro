@@ -27,15 +27,21 @@ const lines = [
       aria-hidden="true"
       data-fiber-light
     >
-      {lines.map((d) => <path d={d} />)}
+      {lines.map((d) => (
+        <path d={d} />
+      ))}
     </svg>
   </div>
   <div class="stage__copy px-gutter">
     <div class="copy">
       <Heading lines={heading} class="display--one-line" data-reveal />
-      <p class="standard" data-reveal>{standard}</p>
+      <p class="standard" data-reveal>
+        {standard}
+      </p>
       <span class="rule" aria-hidden="true" data-reveal></span>
-      <p class="lead lead--narrow" data-reveal>{text}</p>
+      <p class="lead lead--narrow" data-reveal>
+        {text}
+      </p>
     </div>
   </div>
 </section>

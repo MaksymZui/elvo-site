@@ -32,22 +32,22 @@ const images = [
       <div class="copy">
         <Logo class="solutions__logo" aria-hidden="true" data-reveal />
         <Heading lines={heading} data-reveal />
-        <p class="lead" data-reveal>{text}</p>
+        <p class="lead" data-reveal>
+          {text}
+        </p>
       </div>
     </div>
-    {
-      images.map((image) => (
-        <Picture
-          pictureAttributes={{ class: `panel panel--${image.name}`, 'data-panel': true }}
-          src={image.src}
-          alt={image.alt}
-          formats={['avif', 'webp']}
-          fallbackFormat="webp"
-          widths={[360, 768, 1280]}
-          sizes="(min-width: 1024px) 34vw, 50vw"
-          quality={60}
-        />
-      ))
-    }
+    {images.map((image) => (
+      <Picture
+        pictureAttributes={{ class: `panel panel--${image.name}`, 'data-panel': true }}
+        src={image.src}
+        alt={image.alt}
+        formats={['avif', 'webp']}
+        fallbackFormat="webp"
+        widths={[360, 768, 1280]}
+        sizes="(min-width: 1024px) 34vw, 50vw"
+        quality={60}
+      />
+    ))}
   </div>
 </section>

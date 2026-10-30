@@ -44,27 +44,35 @@ const mailto = `mailto:${site.email}`;
   <div class="contact__inner px-gutter">
     <div class="copy contact__block">
       <Logo class="contact__logo" aria-hidden="true" data-reveal />
-      <div data-reveal><Tagline /></div>
+      <div data-reveal>
+        <Tagline />
+      </div>
       <span class="glow-line" aria-hidden="true" data-reveal></span>
       <ul class="contact__list">
         <li class="contact__row" data-reveal>
           <Icon name="mail" class="contact__icon" />
           <span class="sr-only">{emailLabel}</span>
-          <a class="contact__mail" href={mailto}>{site.email}</a>
+          <a class="contact__mail" href={mailto}>
+            {site.email}
+          </a>
         </li>
         <li class="contact__row" data-reveal>
           <Icon name="map-pin" class="contact__icon" />
           <span class="sr-only">{addressLabel}</span>
           <address class="not-italic">
-            {company}<br />
-            {address[0]}<br />
+            {company}
+            <br />
+            {address[0]}
+            <br />
             {address[1]}
           </address>
         </li>
       </ul>
     </div>
     <div class="contact__cta" data-reveal>
-      <a class="btn" href={mailto}>{site.contactLabel}</a>
+      <a class="btn" href={mailto}>
+        {site.contactLabel}
+      </a>
       <div class="drone-slot" data-drone-slot>
         <Image src={droneTop} alt="" width={240} format="webp" loading="lazy" />
       </div>

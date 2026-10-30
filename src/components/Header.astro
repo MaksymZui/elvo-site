@@ -12,20 +12,20 @@ import Icon from './Icon.astro';
 
     <nav class="hidden md:block" aria-label={site.menu.label}>
       <ul class="flex items-center gap-6 lg:gap-8">
-        {
-          site.nav.map((item) => (
-            <li>
-              <a class="nav-link" href={item.href}>
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
+        {site.nav.map((item) => (
+          <li>
+            <a class="nav-link" href={item.href}>
+              {item.label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
 
     <div class="flex items-center gap-2">
-      <a class="btn btn--small" href="#contact">{site.contactLabel}</a>
+      <a class="btn btn--small" href="#contact">
+        {site.contactLabel}
+      </a>
       <button class="icon-btn md:hidden" popovertarget="menu" aria-label={site.menu.open}>
         <Icon name="menu" class="size-6" />
       </button>
@@ -47,18 +47,18 @@ import Icon from './Icon.astro';
     </div>
     <nav aria-label={site.menu.label}>
       <ul class="flex flex-col gap-2">
-        {
-          site.nav.map((item) => (
-            <li>
-              <a class="menu__link" href={item.href}>
-                {item.label}
-              </a>
-            </li>
-          ))
-        }
+        {site.nav.map((item) => (
+          <li>
+            <a class="menu__link" href={item.href}>
+              {item.label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
-    <a class="btn self-start" href="#contact">{site.contactLabel}</a>
+    <a class="btn self-start" href="#contact">
+      {site.contactLabel}
+    </a>
   </div>
 </header>
 

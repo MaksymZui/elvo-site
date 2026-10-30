@@ -1,6 +1,7 @@
 ---
 import hero from '../assets/sections/hero.webp';
 import heroMobile from '../assets/sections/hero-mobile.webp';
+import DroneLayer from '../components/DroneLayer.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import Contact from '../components/sections/Contact.astro';
@@ -19,19 +20,17 @@ const heroPreloads = (await artSources(heroMobile, hero, '100vw')).filter(
 
 <Base>
   <Fragment slot="head">
-    {
-      heroPreloads.map((source) => (
-        <link
-          rel="preload"
-          as="image"
-          type={source.type}
-          media={source.media}
-          imagesrcset={source.srcset}
-          imagesizes={source.sizes}
-          fetchpriority="high"
-        />
-      ))
-    }
+    {heroPreloads.map((source) => (
+      <link
+        rel="preload"
+        as="image"
+        type={source.type}
+        media={source.media}
+        imagesrcset={source.srcset}
+        imagesizes={source.sizes}
+        fetchpriority="high"
+      />
+    ))}
   </Fragment>
   <Header />
   <main id="main">
@@ -43,4 +42,9 @@ const heroPreloads = (await artSources(heroMobile, hero, '100vw')).filter(
     <Contact />
   </main>
   <Footer />
+  <DroneLayer />
 </Base>
+
+<script>
+  import '../scripts/motion';
+</script>

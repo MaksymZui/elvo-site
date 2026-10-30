@@ -19,18 +19,16 @@ const fallback = await getImage({ src: desktop, format: 'webp', width: 1280, qua
 ---
 
 <picture class={className}>
-  {
-    sources.map((source) => (
-      <source
-        media={source.media}
-        type={source.type}
-        srcset={source.srcset}
-        sizes={source.sizes}
-        width={source.width}
-        height={source.height}
-      />
-    ))
-  }
+  {sources.map((source) => (
+    <source
+      media={source.media}
+      type={source.type}
+      srcset={source.srcset}
+      sizes={source.sizes}
+      width={source.width}
+      height={source.height}
+    />
+  ))}
   <img
     src={fallback.src}
     alt={alt}

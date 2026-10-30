@@ -50,7 +50,9 @@ const ogImage = new URL('/og-image.jpg', site.url).href;
     </script>
   </head>
   <body>
-    <a class="skip-link" href="#main">{site.skipLink}</a>
+    <a class="skip-link" href="#main">
+      {site.skipLink}
+    </a>
     <slot />
   </body>
 </html>

@@ -21,17 +21,15 @@ const { heading, imageAlt, features } = site.hero;
       <Heading as="h1" lines={heading} class="display--hero" data-split />
     </div>
     <ul class="features copy">
-      {
-        features.map((feature) => (
-          <li class="features__item" data-reveal>
-            <Icon name={feature.icon as IconName} class="features__icon" />
-            <p>
-              <strong class="block font-semibold">{feature.title}</strong>
-              <span class="block text-muted">{feature.text}</span>
-            </p>
-          </li>
-        ))
-      }
+      {features.map((feature) => (
+        <li class="features__item" data-reveal>
+          <Icon name={feature.icon as IconName} class="features__icon" />
+          <p>
+            <strong class="block font-semibold">{feature.title}</strong>
+            <span class="block text-muted">{feature.text}</span>
+          </p>
+        </li>
+      ))}
     </ul>
   </div>
 </section>

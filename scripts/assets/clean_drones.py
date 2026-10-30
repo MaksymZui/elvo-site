@@ -17,6 +17,8 @@ EXPORT_WIDTH = 480
 ALPHA_FLOOR = 16
 MIN_SPECK_AREA = 500
 PADDING = 6
+# Mid-tones up: the dark body gets lost over the dark site
+GAMMA = 0.82
 
 
 def clean(src: Path, feather: dict[str, int]) -> Image.Image:
@@ -40,6 +42,8 @@ def clean(src: Path, feather: dict[str, int]) -> Image.Image:
     # Saturated blue on a soft edge is background spill, not body lights: those stay at a≈252
     a = np.where(soft_edge, a * (1 - 0.9 * np.clip(saturation * 1.6, 0, 1)), a)
     b = np.where(soft_edge, np.minimum(b, neutral * 1.12 + 6), b)
+
+    r, g, b = [255 * (channel / 255) ** GAMMA for channel in (r, g, b)]
 
     h, w = a.shape
     for side, size in feather.items():

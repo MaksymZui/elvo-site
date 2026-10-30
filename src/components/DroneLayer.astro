@@ -1,0 +1,43 @@
+---
+import sideAvif from '../assets/drone.avif';
+import sideWebp from '../assets/drone.webp';
+import topAvif from '../assets/drone-top.avif';
+import topWebp from '../assets/drone-top.webp';
+---
+
+<div class="drone" data-drone hidden aria-hidden="true">
+  <span class="drone__probe" data-drone-probe></span>
+  <svg class="drone__route">
+    <path data-drone-route></path>
+  </svg>
+  <div class="drone__pos" data-drone-pos>
+    <div class="drone__bob">
+      <div class="drone__flip" data-drone-flip>
+        <div class="drone__tilt" data-drone-tilt>
+          <picture>
+            <source type="image/avif" data-srcset={sideAvif.src} />
+            <img
+              class="drone__side"
+              data-drone-side
+              data-src={sideWebp.src}
+              width={sideWebp.width}
+              height={sideWebp.height}
+              alt=""
+            />
+          </picture>
+          <picture>
+            <source type="image/avif" data-srcset={topAvif.src} />
+            <img
+              class="drone__top"
+              data-drone-top
+              data-src={topWebp.src}
+              width={topWebp.width}
+              height={topWebp.height}
+              alt=""
+            />
+          </picture>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
