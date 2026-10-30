@@ -9,7 +9,11 @@ import {
 } from 'swiper/modules';
 
 const SPEED = 900;
-const EDGE_PAUSE_MS = 250;
+/**
+ * A pause this long ends a wheel gesture: trackpad inertia keeps events coming until it fades.
+ * Gaps inside a simulated flick reached 128 ms, so a lower value splits one gesture in two.
+ */
+const GESTURE_GAP_MS = 200;
 
 /** Keeps the old slide readable until it is gone, then rewinds its reveals for the next visit. */
 function markActive(swiper: Swiper): void {
@@ -38,6 +42,33 @@ function focusActive(swiper: Swiper): void {
   slide.focus({ preventScroll: true });
 }
 
+/** True while the wheel should move a slide taller than the screen, not the slider. */
+function scrollsInsideSlide(event: WheelEvent): boolean {
+  const body = (event.target as Element).closest<HTMLElement>('[data-screen-body]');
+  if (!body || body.scrollHeight <= body.clientHeight + 1) return false;
+
+  return event.deltaY > 0
+    ? body.scrollTop + body.clientHeight < body.scrollHeight - 1
+    : body.scrollTop > 0;
+}
+
+/** Fitting slides leave the swipe to Swiper; one that outgrows the screen keeps its own scroll. */
+function markTallSlides(swiper: Swiper): void {
+  swiper.slides.forEach((slide) => {
+    const body = slide.querySelector<HTMLElement>('[data-screen-body]');
+    body?.classList.toggle('is-tall', body.scrollHeight > body.clientHeight + 1);
+  });
+}
+
+/** Swiper adds a shadow only after it set the transition time, so the first one would pop in. */
+function addShadows(slides: HTMLElement[]): void {
+  slides.forEach((slide) => {
+    const shadow = document.createElement('div');
+    shadow.className = 'swiper-slide-shadow swiper-slide-shadow-creative';
+    slide.append(shadow);
+  });
+}
+
 function createDots(main: HTMLElement): HTMLElement {
   const dots = document.createElement('div');
   dots.className = 'dots';
@@ -50,9 +81,12 @@ function createDots(main: HTMLElement): HTMLElement {
 export function startSlider(): () => void {
   const main = document.getElementById('main')!;
   const dots = createDots(main);
-  const labels = [...main.querySelectorAll<HTMLElement>('[data-section]')].map(
-    (slide) => slide.dataset['label'],
-  );
+  const slides = [...main.querySelectorAll<HTMLElement>('[data-section]')];
+  const labels = slides.map((slide) => slide.dataset['label']);
+  addShadows(slides);
+
+  let gestureSpent = false;
+  let lastWheelAt = 0;
 
   const swiper = new Swiper(main, {
     modules: [A11y, EffectCreative, HashNavigation, Keyboard, Mousewheel, Pagination],
@@ -61,17 +95,13 @@ export function startSlider(): () => void {
     direction: 'vertical',
     speed: SPEED,
     simulateTouch: false,
+    longSwipesRatio: 0.25,
     effect: 'creative',
     creativeEffect: {
       prev: { shadow: true, translate: [0, 0, -1], scale: 0.9 },
       next: { translate: [0, '100%', 0] },
     },
-    mousewheel: {
-      thresholdDelta: 10,
-      thresholdTime: SPEED + 400,
-      releaseOnEdges: false,
-      eventsTarget: 'body',
-    },
+    mousewheel: { thresholdDelta: 10, releaseOnEdges: false, eventsTarget: 'body' },
     keyboard: { enabled: true },
     pagination: {
       el: dots,
@@ -87,9 +117,12 @@ export function startSlider(): () => void {
     on: {
       init(instance) {
         markActive(instance);
+        markTallSlides(instance);
         preloadNeighbours(instance);
       },
+      resize: markTallSlides,
       slideChange(instance) {
+        gestureSpent = true;
         markActive(instance);
         preloadNeighbours(instance);
       },
@@ -129,30 +162,25 @@ export function startSlider(): () => void {
     else swiper.slideNext();
   };
 
-  // A slide taller than the screen scrolls first; the wheel reaches Swiper on body only at its edge
-  let innerScrollAt = 0;
-  const onInnerWheel = (event: WheelEvent) => {
-    const body = (event.target as Element).closest<HTMLElement>('[data-screen-body]');
-    if (!body || body.scrollHeight <= body.clientHeight + 1) return;
-
-    const atEdge =
-      event.deltaY > 0
-        ? body.scrollTop + body.clientHeight >= body.scrollHeight - 1
-        : body.scrollTop <= 0;
-    if (!atEdge) innerScrollAt = performance.now();
-    if (performance.now() - innerScrollAt < EDGE_PAUSE_MS) event.stopPropagation();
+  // One gesture, one slide: Swiper's own thresholds cannot tell inertia from a new push, and a long
+  // flick outlasts the transition. A gesture that scrolled inside a slide stops at its edge too.
+  const onWheel = (event: WheelEvent) => {
+    // A pause during the transition proves nothing: the main thread is busy, inertia may go on
+    if (!swiper.animating && event.timeStamp - lastWheelAt > GESTURE_GAP_MS) gestureSpent = false;
+    lastWheelAt = event.timeStamp;
+    if (scrollsInsideSlide(event)) gestureSpent = true;
+    if (gestureSpent) event.stopPropagation();
   };
 
   document.addEventListener('click', onAnchorClick);
   document.addEventListener('keydown', onSpace);
-  main.addEventListener('wheel', onInnerWheel, { passive: true });
+  window.addEventListener('wheel', onWheel, { capture: true, passive: true });
 
   return () => {
     document.removeEventListener('click', onAnchorClick);
     document.removeEventListener('keydown', onSpace);
-    main.removeEventListener('wheel', onInnerWheel);
+    window.removeEventListener('wheel', onWheel, { capture: true });
 
-    const { slides } = swiper;
     swiper.destroy(true, true);
     dots.remove();
     main.querySelectorAll('.swiper-slide-shadow').forEach((shadow) => shadow.remove());

@@ -509,7 +509,7 @@
     }
 
     .callout--autel {
-      right: 3.8%;
+      right: 6%;
       bottom: 62.1%;
     }
   }
@@ -863,6 +863,11 @@ html.slider {
   scroll-behavior: auto;
 }
 
+/* Callouts zoom with the photo: a stronger zoom would push them under the dots */
+html.slider .stage--drones {
+  --zoom: 1.03;
+}
+
 html.slider main {
   position: relative;
   height: 100svh;
@@ -884,10 +889,17 @@ html.slider .screen {
 }
 
 html.slider .screen__body {
+  justify-content: safe center;
   height: 100%;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* A scroller would take the vertical swipe away from Swiper */
+  touch-action: pan-x;
+}
+
+html.slider .screen__body.is-tall {
+  touch-action: pan-y;
 }
 
 /* A linked slide shows at once instead of the hero flashing first */
@@ -934,6 +946,7 @@ html.slider main:not(.swiper-initialized):has(.screen:target) .screen:not(:targe
   z-index: 10;
   inset: 0;
   background: rgb(0 0 0 / 60%);
+  opacity: 0;
   pointer-events: none;
   transition-property: opacity;
   transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
@@ -966,6 +979,7 @@ html.slider main:not(.swiper-initialized):has(.screen:target) .screen:not(:targe
   height: 0.625rem;
   border: 1px solid var(--color-muted);
   border-radius: 50%;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 45%);
   transition:
     background-color 300ms var(--ease-soft),
     transform 300ms var(--ease-soft);
