@@ -1,7 +1,6 @@
 ---
 import hero from '../assets/sections/hero.webp';
 import heroMobile from '../assets/sections/hero-mobile.webp';
-import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import Contact from '../components/sections/Contact.astro';
 import Drones from '../components/sections/Drones.astro';
@@ -33,14 +32,15 @@ const heroPreloads = (await artSources(heroMobile, hero)).filter(
   </Fragment>
   <Header />
   <main id="main">
-    <Hero />
-    <Drones />
-    <Payload />
-    <Fiber />
-    <Solutions />
-    <Contact />
+    <div class="screens">
+      <Hero />
+      <Drones />
+      <Payload />
+      <Fiber />
+      <Solutions />
+      <Contact />
+    </div>
   </main>
-  <Footer />
 </Base>
 
 <script>

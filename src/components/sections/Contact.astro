@@ -1,6 +1,7 @@
 ---
 import Logo from '../../assets/logo.svg';
 import { site } from '../../content/site';
+import Footer from '../Footer.astro';
 import Icon from '../Icon.astro';
 import Screen from '../Screen.astro';
 import Tagline from '../Tagline.astro';
@@ -9,7 +10,7 @@ const { company, address, emailLabel, addressLabel } = site.contact;
 const mailto = `mailto:${site.email}`;
 ---
 
-<Screen id="contact" class="contact" last>
+<Screen id="contact" class="contact">
   <svg
     class="contact__decor"
     viewBox="0 0 1280 512"
@@ -74,4 +75,5 @@ const mailto = `mailto:${site.email}`;
       </a>
     </div>
   </div>
+  <Footer />
 </Screen>

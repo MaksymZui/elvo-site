@@ -262,13 +262,8 @@
 
   /* Full-height sections */
   .screen {
-    --screen-height: 100svh;
     position: relative;
-    min-height: var(--screen-height);
-  }
-
-  .screen--last {
-    --screen-height: calc(100svh - var(--spacing-footer));
+    min-height: 100svh;
   }
 
   .screen__body {
@@ -276,17 +271,9 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: var(--screen-height);
+    min-height: 100svh;
     padding-block-start: var(--spacing-header);
     overflow: hidden;
-  }
-
-  .screen__shade {
-    position: absolute;
-    inset: 0;
-    background: black;
-    opacity: 0;
-    pointer-events: none;
   }
 
   /* Sections with a photo */
@@ -665,7 +652,6 @@
 
   /* Section 6 */
   .contact {
-    padding-block-end: 2rem;
     background: radial-gradient(
       ellipse at 50% 30%,
       var(--color-surface-2),
@@ -686,6 +672,8 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    margin-block: auto;
+    padding-block: 2rem;
   }
 
   .contact__logo {
@@ -780,6 +768,7 @@
 
   /* Footer */
   .footer {
+    position: relative;
     display: flex;
     min-height: var(--spacing-footer);
     flex-wrap: wrap;

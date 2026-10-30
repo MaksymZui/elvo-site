@@ -21,6 +21,14 @@ export const site = {
   contactLabel: 'Contact',
   menu: { open: 'Open menu', close: 'Close menu', label: 'Main' },
   homeLabel: 'ELVO home',
+  sections: {
+    top: 'Home',
+    drones: 'Drones',
+    payload: 'Payload',
+    fiber: 'Fiber Optic',
+    solutions: 'Solutions',
+    contact: 'Contact',
+  },
   nav: [
     { label: 'Drones', href: '#drones' },
     { label: 'Payload', href: '#payload' },
