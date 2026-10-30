@@ -16,6 +16,7 @@
     "@tailwindcss/vite": "4.3.3",
     "animejs": "4.5.0",
     "astro": "7.4.4",
+    "sharp": "0.35.5",
     "tailwindcss": "4.3.3"
   },
   "devDependencies": {
