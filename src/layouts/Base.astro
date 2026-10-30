@@ -1,11 +1,14 @@
 ---
 import { Font } from 'astro:assets';
 import { site } from '../content/site';
+import { isPagesPreview } from '../lib/build';
 import { SLIDER_MEDIA } from '../lib/slider-mode';
 import '../styles/global.css';
 
+const { BASE_URL } = import.meta.env;
 const canonical = new URL('/', site.url).href;
-const ogImage = new URL('/og-image.jpg', site.url).href;
+// From the host of this build: on the preview the real domain does not serve it yet
+const ogImage = new URL(`${BASE_URL}og-image.jpg`, Astro.site).href;
 ---
 
 <!doctype html>
@@ -15,6 +18,7 @@ const ogImage = new URL('/og-image.jpg', site.url).href;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{site.title}</title>
     <meta name="description" content={site.description} />
+    {isPagesPreview && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#001027" />
 
@@ -32,9 +36,9 @@ const ogImage = new URL('/og-image.jpg', site.url).href;
     <meta name="twitter:description" content={site.description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href={`${BASE_URL}favicon.svg`} type="image/svg+xml" />
+    <link rel="icon" href={`${BASE_URL}favicon-32.png`} sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href={`${BASE_URL}apple-touch-icon.png`} />
 
     <Font cssVariable="--font-anybody" preload />
     <slot name="head" />
