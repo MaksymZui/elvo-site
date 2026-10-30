@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Text over a full-bleed photo: only where the 16:10 frame leaves room beside the subject */
+@custom-variant wide (@media (min-width: 1024px) and (min-aspect-ratio: 3/2));
+
 @theme {
   --font-sans: var(--font-anybody), ui-sans-serif, system-ui, sans-serif;
 
@@ -16,8 +19,8 @@
   --color-line: #1c3a60;
 
   --spacing-gutter: 1.25rem;
-  --spacing-section: 4rem;
   --spacing-header: 4rem;
+  --spacing-footer: 5.8125rem;
 
   --radius-panel: 1rem;
   --radius-card: 1.5rem;
@@ -35,14 +38,12 @@
 @media (min-width: 1024px) {
   :root {
     --spacing-gutter: 4rem;
-    --spacing-section: 6rem;
     --spacing-header: 4.5rem;
   }
 }
 
 @layer base {
   html {
-    scroll-padding-top: var(--spacing-header);
     background: var(--color-bg);
     color: var(--color-text);
   }
@@ -195,9 +196,9 @@
 
   /* Header */
   .header {
-    position: sticky;
+    position: fixed;
     z-index: 50;
-    top: 0;
+    inset: 0 0 auto;
     background: color-mix(in srgb, var(--color-bg) 90%, transparent);
   }
 
@@ -259,21 +260,64 @@
     font-weight: 700;
   }
 
-  /* Hero */
-  .hero {
+  /* Full-height sections */
+  .screen {
+    --screen-height: 100svh;
+    position: relative;
+    min-height: var(--screen-height);
+  }
+
+  .screen--last {
+    --screen-height: calc(100svh - var(--spacing-footer));
+  }
+
+  .screen__body {
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: calc(100svh - var(--spacing-header));
+    justify-content: center;
+    min-height: var(--screen-height);
+    padding-block-start: var(--spacing-header);
     overflow: hidden;
   }
 
-  .hero__media {
+  .screen__shade {
+    position: absolute;
+    inset: 0;
+    background: black;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Sections with a photo */
+  .stage {
+    background: var(--color-bg-deep);
+  }
+
+  .stage--hero {
+    background: var(--color-bg);
+  }
+
+  .stage__media {
     position: relative;
+    flex: none;
     overflow: hidden;
   }
 
-  .hero__media::after {
+  .frame {
+    position: relative;
+  }
+
+  .frame img {
+    width: 100%;
+    height: auto;
+  }
+
+  .stage__copy {
+    padding-block: 2rem;
+  }
+
+  .stage--hero .stage__media::after {
     content: '';
     position: absolute;
     inset: auto 0 0;
@@ -281,20 +325,69 @@
     background: linear-gradient(transparent, var(--color-bg));
   }
 
-  .hero__media img {
-    width: 100%;
-    height: auto;
+  @media (min-width: 768px) {
+    .stage__media {
+      display: flex;
+      align-items: center;
+      aspect-ratio: 2.5;
+    }
+
+    .stage__copy {
+      padding-block: 1.5rem;
+    }
+
+    .frame {
+      flex: none;
+      width: 100%;
+      aspect-ratio: 1.6;
+    }
+
+    .frame picture,
+    .frame img {
+      width: 100%;
+      height: 100%;
+    }
   }
 
-  .hero__content {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 2rem;
-    padding-block: 1.5rem 3rem;
+  @media (min-width: 1024px) and (min-aspect-ratio: 3/2) {
+    .stage__media {
+      position: absolute;
+      inset: 0;
+      justify-content: center;
+      aspect-ratio: auto;
+    }
+
+    /* Same as object-fit: cover, but callouts and light lines stay on the image */
+    .frame {
+      width: max(100%, 160svh);
+    }
+
+    .stage__copy {
+      position: relative;
+      padding-block: 0;
+    }
+
+    .features {
+      margin-top: 3rem;
+    }
+
+    .stage__media::after,
+    .stage--hero .stage__media::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      height: auto;
+      background: linear-gradient(var(--color-bg-deep), transparent 18%);
+    }
+
+    .stage--hero .stage__media::after {
+      background:
+        linear-gradient(var(--color-bg), transparent 24%),
+        linear-gradient(90deg, rgb(0 16 39 / 55%), transparent 58%);
+    }
   }
 
+  /* Hero */
   .hero__tagline {
     margin-bottom: 1rem;
   }
@@ -302,6 +395,7 @@
   .features {
     display: grid;
     gap: 1rem;
+    margin-top: 2rem;
   }
 
   .features__item {
@@ -318,10 +412,6 @@
   }
 
   @media (min-width: 768px) {
-    .hero {
-      min-height: 0;
-    }
-
     .features {
       display: flex;
       flex-wrap: wrap;
@@ -330,42 +420,25 @@
   }
 
   @media (min-width: 1024px) {
-    .hero {
-      aspect-ratio: 2.4;
-    }
-
-    .hero__media {
-      position: absolute;
-      inset: 0;
-    }
-
-    .hero__media::after {
-      inset: 0;
-      height: auto;
-      background: linear-gradient(90deg, rgb(0 16 39 / 55%), transparent 58%);
-    }
-
-    .hero__media picture {
-      height: 100%;
-    }
-
-    .hero__media img {
-      height: 100%;
-      object-fit: cover;
-      object-position: 70% 50%;
-    }
-
-    .hero__content {
-      position: relative;
-      padding-block: clamp(2rem, 6vw, 5.5rem) 2.5rem;
-    }
-
-    .hero__tagline {
-      margin-bottom: 1.5rem;
+    .display {
+      font-size: clamp(2.25rem, 3.4vw, 4rem);
+      font-stretch: 122%;
     }
 
     .display--hero {
       font-size: clamp(2.75rem, 3.75vw, 4.5rem);
+    }
+
+    .display--compact {
+      font-size: clamp(1.75rem, 2.4vw, 3rem);
+    }
+
+    .display--one-line {
+      white-space: nowrap;
+    }
+
+    .hero__tagline {
+      margin-bottom: 1.5rem;
     }
 
     .features {
@@ -379,77 +452,11 @@
     }
   }
 
-  /* Full-frame sections */
-  .stage {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding-block-end: var(--spacing-section);
-    background: var(--color-bg-deep);
-  }
-
-  .stage__media {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .stage__media img {
-    width: 100%;
-    height: auto;
-  }
-
-  .stage__copy {
-    padding-block-start: 2rem;
-  }
-
-  @media (min-width: 1024px) {
-    .display {
-      font-size: clamp(2.25rem, 3.4vw, 4rem);
-      font-stretch: 122%;
-    }
-
-    .display--compact {
-      font-size: clamp(1.75rem, 2.4vw, 3rem);
-    }
-
-    .display--one-line {
-      white-space: nowrap;
-    }
-
-    .stage {
-      display: block;
-      aspect-ratio: 2.5;
-      padding-block-end: 0;
-      overflow: hidden;
-    }
-
-    .stage__media {
-      position: absolute;
-      inset: 0;
-    }
-
-    .stage__media picture,
-    .stage__media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .stage__copy {
-      position: absolute;
-      display: flex;
-      inset: 0;
-      flex-direction: column;
-      justify-content: center;
-      padding-block-start: 0;
-    }
-  }
-
   /* Section 2 */
   .models {
     display: grid;
     gap: 1.5rem;
-    margin-top: 1.5rem;
+    padding-block-end: 2rem;
   }
 
   .model__image img {
@@ -465,7 +472,8 @@
     text-transform: uppercase;
   }
 
-  .callouts {
+  .callouts,
+  .callout {
     display: none;
   }
 
@@ -475,30 +483,9 @@
     }
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 1024px) and (min-aspect-ratio: 3/2) {
     .models {
-      display: contents;
-    }
-
-    .model {
-      display: contents;
-    }
-
-    .model__name {
-      position: absolute;
-      margin: 0;
-      font-size: 1rem;
-      line-height: 1;
-    }
-
-    .model--dji .model__name {
-      top: 25.6%;
-      left: 44.6%;
-    }
-
-    .model--autel .model__name {
-      top: 27.6%;
-      right: 3.8%;
+      display: none;
     }
 
     .callouts {
@@ -508,17 +495,35 @@
       width: 100%;
       height: 100%;
       fill: none;
-      pointer-events: none;
+    }
+
+    .callout {
+      position: absolute;
+      display: block;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .callout--dji {
+      bottom: 63.6%;
+      left: 44.6%;
+    }
+
+    .callout--autel {
+      right: 3.8%;
+      bottom: 62.1%;
     }
   }
 
   /* Section 4 */
   .fiber-light {
     position: absolute;
-    top: -34.29%;
+    top: -75.43%;
     left: -71.21%;
     width: 193.94%;
-    height: 146.29%;
+    height: 228.57%;
     fill: none;
     stroke: var(--color-text);
     stroke-linecap: round;
@@ -537,12 +542,13 @@
 
   /* Section 5 */
   .solutions {
-    padding-block: var(--spacing-section);
+    padding-block-end: 2rem;
     background: var(--color-bg);
   }
 
   .solutions__grid {
     display: grid;
+    margin-block-start: 1rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
   }
@@ -575,15 +581,27 @@
     object-fit: cover;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
+    .solutions__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .panel {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  @media (min-width: 1024px) and (min-aspect-ratio: 3/2) {
     .solutions__grid {
       grid-template-areas:
         'camera propeller transmitter'
         'frame card fpv'
         'fiber chip goggles';
-      grid-template-rows: 1fr 1.3fr 1fr;
+      grid-template-rows: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr);
       grid-template-columns: 1fr 1.12fr 1fr;
-      aspect-ratio: 2.4;
+      height: calc(100svh - var(--spacing-header) - 3rem);
+      min-height: 30rem;
+      margin-block-start: 0;
     }
 
     .solutions__card {
@@ -647,9 +665,7 @@
 
   /* Section 6 */
   .contact {
-    position: relative;
-    overflow: hidden;
-    padding-block: var(--spacing-section);
+    padding-block-end: 2rem;
     background: radial-gradient(
       ellipse at 50% 30%,
       var(--color-surface-2),
@@ -724,11 +740,13 @@
     display: flex;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 1024px) and (min-aspect-ratio: 3/2) {
     .contact__decor {
       display: block;
     }
+  }
 
+  @media (min-width: 1024px) {
     .contact__inner {
       align-items: center;
     }
@@ -763,11 +781,11 @@
   /* Footer */
   .footer {
     display: flex;
+    min-height: var(--spacing-footer);
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem 1.5rem;
-    padding-block: 1.5rem;
     border-top: 1px solid var(--color-line);
     background: var(--color-bg-deep);
     color: var(--color-muted);
@@ -785,9 +803,4 @@ html.motion [data-reveal],
 html.motion [data-split],
 html.motion [data-panel] {
   opacity: 0;
-}
-
-/* Overscan for the hero parallax */
-html.motion [data-parallax] img {
-  scale: 1.08;
 }

@@ -42,7 +42,7 @@ function revealHeading({ gsap, SplitText }: GsapApi, section: Element): void {
 /** Text first, media last, whatever the DOM order is. */
 function revealOrder(section: Element): Element[] {
   const items = [...section.querySelectorAll('[data-reveal]')];
-  const isMedia = (item: Element) => item.matches('.stage__media, .model__image, .callouts');
+  const isMedia = (item: Element) => item.matches('.model__image, .callouts, .callout');
   return [...items.filter((item) => !isMedia(item)), ...items.filter(isMedia)];
 }
 
@@ -80,14 +80,6 @@ function revealContent({ gsap }: GsapApi, section: Element): void {
       },
     );
   }
-}
-
-function parallaxHero({ gsap }: GsapApi): void {
-  gsap.to('[data-parallax] img', {
-    yPercent: 6,
-    ease: 'none',
-    scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: true },
-  });
 }
 
 function runFiberLight({ gsap }: GsapApi): void {
@@ -137,7 +129,6 @@ async function start(): Promise<void> {
       revealHeading(api, section);
       revealContent(api, section);
     });
-    parallaxHero(api);
     runFiberLight(api);
   });
 

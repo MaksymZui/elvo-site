@@ -4,44 +4,39 @@ import fiberMobile from '../../assets/sections/fiber-mobile.webp';
 import { site } from '../../content/site';
 import ArtPicture from '../ArtPicture.astro';
 import Heading from '../Heading.astro';
+import Screen from '../Screen.astro';
 
 const { heading, standard, text, imageAlt } = site.fiber;
 
-// Light runs from the cable end to the fiber tips, in mockup pixels
+// Light runs from the cable end to the fiber tips, in pixels of the 1280x800 frame
 const lines = [
-  'M884 292C780 290 690 300 533 297',
-  'M884 300C770 306 660 316 487 323',
-  'M886 310C770 320 650 345 510 381',
-  'M880 296C800 280 700 276 587 279',
-  'M884 318C790 340 700 366 608 400',
+  'M884 436C780 434 690 444 533 441',
+  'M884 444C770 450 660 460 487 467',
+  'M886 454C770 464 650 489 510 525',
+  'M880 440C800 424 700 420 587 423',
+  'M884 462C790 484 700 510 608 544',
 ];
 ---
 
-<section id="fiber" class="stage stage--fiber" data-section>
-  <div class="stage__media" data-reveal>
-    <ArtPicture mobile={fiberMobile} desktop={fiber} alt={imageAlt} />
-    <svg
-      class="fiber-light"
-      viewBox="0 0 1280 512"
-      preserveAspectRatio="xMidYMid slice"
-      aria-hidden="true"
-      data-fiber-light
-    >
-      {lines.map((d) => (
-        <path d={d} />
-      ))}
-    </svg>
-  </div>
-  <div class="stage__copy px-gutter">
-    <div>
-      <Heading lines={heading} class="display--one-line" />
-      <p class="standard" data-reveal>
-        {standard}
-      </p>
-      <span class="rule" aria-hidden="true" data-reveal></span>
-      <p class="lead lead--narrow" data-reveal>
-        {text}
-      </p>
+<Screen id="fiber" class="stage">
+  <div class="stage__media">
+    <div class="frame" data-zoom>
+      <ArtPicture mobile={fiberMobile} desktop={fiber} alt={imageAlt} />
+      <svg class="fiber-light" viewBox="0 0 1280 800" aria-hidden="true" data-fiber-light>
+        {lines.map((d) => (
+          <path d={d} />
+        ))}
+      </svg>
     </div>
   </div>
-</section>
+  <div class="stage__copy px-gutter">
+    <Heading lines={heading} class="display--one-line" />
+    <p class="standard" data-reveal>
+      {standard}
+    </p>
+    <span class="rule" aria-hidden="true" data-reveal></span>
+    <p class="lead lead--narrow" data-reveal>
+      {text}
+    </p>
+  </div>
+</Screen>

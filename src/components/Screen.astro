@@ -1,0 +1,16 @@
+---
+interface Props {
+  id: string;
+  class?: string;
+  last?: boolean;
+}
+
+const { id, class: className, last = false } = Astro.props;
+---
+
+<section id={id} class:list={['screen', { 'screen--last': last }]} data-section>
+  <div class:list={['screen__body', className]} data-screen-body>
+    <slot />
+  </div>
+  <div class="screen__shade" aria-hidden="true" data-screen-shade></div>
+</section>

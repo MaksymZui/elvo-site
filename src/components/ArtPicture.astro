@@ -7,14 +7,13 @@ interface Props {
   mobile: ImageMetadata;
   desktop: ImageMetadata;
   alt: string;
-  sizes?: string;
   eager?: boolean;
   class?: string;
 }
 
-const { mobile, desktop, alt, sizes = '100vw', eager = false, class: className } = Astro.props;
+const { mobile, desktop, alt, eager = false, class: className } = Astro.props;
 
-const sources = await artSources(mobile, desktop, sizes);
+const sources = await artSources(mobile, desktop);
 const fallback = await getImage({ src: desktop, format: 'webp', width: 1280, quality: 72 });
 ---
 

@@ -6,20 +6,21 @@ import ArtPicture from '../ArtPicture.astro';
 import Heading from '../Heading.astro';
 import Icon from '../Icon.astro';
 import type { IconName } from '../Icon.astro';
+import Screen from '../Screen.astro';
 import Tagline from '../Tagline.astro';
 
 const { heading, imageAlt, features } = site.hero;
 ---
 
-<section id="top" class="hero" data-section>
-  <div class="hero__media" data-parallax>
-    <ArtPicture mobile={heroMobile} desktop={hero} alt={imageAlt} eager />
-  </div>
-  <div class="hero__content px-gutter">
-    <div>
-      <Tagline class="hero__tagline" />
-      <Heading as="h1" lines={heading} class="display--hero" />
+<Screen id="top" class="stage stage--hero">
+  <div class="stage__media">
+    <div class="frame" data-zoom>
+      <ArtPicture mobile={heroMobile} desktop={hero} alt={imageAlt} eager />
     </div>
+  </div>
+  <div class="stage__copy px-gutter">
+    <Tagline class="hero__tagline" />
+    <Heading as="h1" lines={heading} class="display--hero" />
     <ul class="features">
       {features.map((feature) => (
         <li class="features__item" data-reveal>
@@ -32,4 +33,4 @@ const { heading, imageAlt, features } = site.hero;
       ))}
     </ul>
   </div>
-</section>
+</Screen>

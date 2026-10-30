@@ -11,6 +11,7 @@ import propeller from '../../assets/sections/panel-propeller.webp';
 import transmitter from '../../assets/sections/panel-transmitter.webp';
 import { site } from '../../content/site';
 import Heading from '../Heading.astro';
+import Screen from '../Screen.astro';
 
 const { heading, text, panels } = site.solutions;
 
@@ -26,7 +27,7 @@ const images = [
 ];
 ---
 
-<section id="solutions" class="solutions px-gutter" data-section>
+<Screen id="solutions" class="solutions px-gutter">
   <div class="solutions__grid">
     <div class="solutions__card">
       <div class="solutions__text">
@@ -50,4 +51,4 @@ const images = [
       />
     ))}
   </div>
-</section>
+</Screen>

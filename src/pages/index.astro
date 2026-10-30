@@ -12,7 +12,7 @@ import Solutions from '../components/sections/Solutions.astro';
 import Base from '../layouts/Base.astro';
 import { artSources } from '../lib/art';
 
-const heroPreloads = (await artSources(heroMobile, hero, '100vw')).filter(
+const heroPreloads = (await artSources(heroMobile, hero)).filter(
   (source) => source.type === 'image/avif',
 );
 ---

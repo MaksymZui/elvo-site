@@ -5,6 +5,9 @@ const WIDTHS = [360, 768, 1280, 1920];
 const FORMATS = ['avif', 'webp'] as const;
 const QUALITY = { avif: 50, webp: 72 };
 const DESKTOP_FROM = 768;
+// The 16:10 frame covers the screen, so a short window can show it wider than the viewport
+const DESKTOP_SIZES = 'max(100vw, 160vh)';
+const MOBILE_SIZES = '100vw';
 
 export interface ArtSource {
   media: string;
@@ -19,15 +22,14 @@ export interface ArtSource {
 export async function artSources(
   mobile: ImageMetadata,
   desktop: ImageMetadata,
-  sizes: string,
 ): Promise<ArtSource[]> {
   const crops = [
-    { src: desktop, media: `(min-width: ${DESKTOP_FROM}px)` },
-    { src: mobile, media: `(max-width: ${DESKTOP_FROM - 1}px)` },
+    { src: desktop, media: `(min-width: ${DESKTOP_FROM}px)`, sizes: DESKTOP_SIZES },
+    { src: mobile, media: `(max-width: ${DESKTOP_FROM - 1}px)`, sizes: MOBILE_SIZES },
   ];
 
   return Promise.all(
-    crops.flatMap(({ src, media }) =>
+    crops.flatMap(({ src, media, sizes }) =>
       FORMATS.map(async (format) => {
         const image = await getImage({
           src,
