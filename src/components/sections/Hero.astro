@@ -16,11 +16,11 @@ const { heading, imageAlt, features } = site.hero;
     <ArtPicture mobile={heroMobile} desktop={hero} alt={imageAlt} eager />
   </div>
   <div class="hero__content px-gutter">
-    <div class="copy">
+    <div>
       <Tagline class="hero__tagline" />
       <Heading as="h1" lines={heading} class="display--hero" data-split />
     </div>
-    <ul class="features copy">
+    <ul class="features">
       {features.map((feature) => (
         <li class="features__item" data-reveal>
           <Icon name={feature.icon as IconName} class="features__icon" />

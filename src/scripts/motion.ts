@@ -1,5 +1,4 @@
 import type * as Anime from './anime';
-import { startDrone } from './drone';
 
 declare global {
   interface Window {
@@ -97,13 +96,11 @@ async function start(): Promise<void> {
     revealSections(anime);
     runFiberLight(anime);
   });
-  const stopDrone = startDrone(anime);
 
   window.addEventListener(
     'pagehide',
     (event) => {
       if (event.persisted) return;
-      stopDrone();
       scope.revert();
     },
     { once: true },

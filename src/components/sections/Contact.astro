@@ -1,7 +1,5 @@
 ---
-import { Image } from 'astro:assets';
 import Logo from '../../assets/logo.svg';
-import droneTop from '../../assets/drone-top.webp';
 import { site } from '../../content/site';
 import Icon from '../Icon.astro';
 import Tagline from '../Tagline.astro';
@@ -42,7 +40,7 @@ const mailto = `mailto:${site.email}`;
   </svg>
 
   <div class="contact__inner px-gutter">
-    <div class="copy contact__block">
+    <div class="contact__block">
       <Logo class="contact__logo" aria-hidden="true" data-reveal />
       <div data-reveal>
         <Tagline />
@@ -73,9 +71,6 @@ const mailto = `mailto:${site.email}`;
       <a class="btn" href={mailto}>
         {site.contactLabel}
       </a>
-      <div class="drone-slot" data-drone-slot>
-        <Image src={droneTop} alt="" width={240} format="webp" loading="lazy" />
-      </div>
     </div>
   </div>
 </section>

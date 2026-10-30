@@ -25,7 +25,7 @@ const formats = ['avif', 'webp'] as ('avif' | 'webp')[];
   </div>
 
   <div class="stage__copy px-gutter">
-    <div class="copy">
+    <div>
       <Heading lines={heading} class="display--compact" data-reveal />
     </div>
   </div>
@@ -43,7 +43,7 @@ const formats = ['avif', 'webp'] as ('avif' | 'webp')[];
           sizes="(min-width: 768px) 50vw, 100vw"
           quality={60}
         />
-        <figcaption class="model__name copy" data-reveal>
+        <figcaption class="model__name" data-reveal>
           {model.name}
         </figcaption>
       </figure>

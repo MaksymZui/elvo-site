@@ -17,9 +17,7 @@
 
   --spacing-gutter: 1.25rem;
   --spacing-section: 4rem;
-  --spacing-lane: 2.5rem;
   --spacing-header: 4rem;
-  --spacing-drone: 4rem;
 
   --radius-panel: 1rem;
   --radius-card: 1.5rem;
@@ -38,9 +36,7 @@
   :root {
     --spacing-gutter: 4rem;
     --spacing-section: 6rem;
-    --spacing-lane: 0px;
     --spacing-header: 4.5rem;
-    --spacing-drone: clamp(9.5rem, 15vw, 13.75rem);
   }
 }
 
@@ -91,7 +87,7 @@
   }
 
   .display--hero {
-    font-size: clamp(1.875rem, 8.7vw, 2.75rem);
+    font-size: clamp(2rem, 9.4vw, 2.75rem);
   }
 
   .lead {
@@ -141,13 +137,6 @@
       letter-spacing: 0.18em;
       text-transform: uppercase;
     }
-  }
-
-  /* Text that must stay clear of the drone: above its layer, off its lane */
-  .copy {
-    position: relative;
-    z-index: 20;
-    padding-inline-end: var(--spacing-lane);
   }
 
   /* Controls */
@@ -567,10 +556,6 @@
     background: var(--color-surface);
   }
 
-  .solutions__card .display {
-    font-size: clamp(1.5rem, 6.9vw, 2.25rem);
-  }
-
   .solutions__logo {
     width: auto;
     height: 2.25rem;
@@ -611,7 +596,7 @@
       text-align: center;
     }
 
-    .solutions__card .copy {
+    .solutions__text {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -736,27 +721,7 @@
   }
 
   .contact__cta {
-    position: relative;
-    z-index: 20;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .drone-slot {
-    flex: none;
-    width: var(--spacing-drone);
-    aspect-ratio: 480 / 410;
-  }
-
-  .drone-slot img {
-    width: 100%;
-    height: auto;
-  }
-
-  html.motion .drone-slot img {
-    display: none;
   }
 
   @media (min-width: 1024px) {
@@ -792,7 +757,6 @@
 
     .contact__cta {
       justify-content: center;
-      gap: 2.5rem;
     }
   }
 
@@ -813,96 +777,6 @@
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
-  }
-}
-
-/* Drone: viewport layer between images (z 0) and text (z 20) */
-.drone {
-  position: fixed;
-  z-index: 10;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100lvh;
-  overflow: clip;
-  pointer-events: none;
-}
-
-.drone__probe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 100lvh;
-  visibility: hidden;
-}
-
-.drone__route {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  visibility: hidden;
-}
-
-.drone__pos {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: var(--spacing-drone);
-  margin-top: calc(var(--spacing-drone) * -0.27);
-  margin-left: calc(var(--spacing-drone) * -0.5);
-  will-change: transform;
-}
-
-.drone__bob {
-  animation: drone-bob 2.8s ease-in-out infinite alternate;
-}
-
-.is-landed .drone__bob {
-  animation: none;
-}
-
-.drone__flip {
-  transition: transform 320ms var(--ease-soft);
-}
-
-.drone__flip.is-flipped {
-  transform: scaleX(-1);
-}
-
-.drone__tilt {
-  position: relative;
-  aspect-ratio: 480 / 258;
-}
-
-/* Lifts the dark body off dark sections; a gradient, not drop-shadow, stays cheap while moving */
-.drone__tilt::before {
-  content: '';
-  position: absolute;
-  inset: -55% -24%;
-  background: radial-gradient(closest-side, rgb(116 164 230 / 32%), transparent);
-}
-
-.drone__side,
-.drone__top {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  translate: 0 -50%;
-}
-
-.drone__top {
-  opacity: 0;
-}
-
-@keyframes drone-bob {
-  from {
-    transform: translateY(-3px);
-  }
-  to {
-    transform: translateY(3px);
   }
 }
 
