@@ -1,5 +1,5 @@
 ---
-import type { HeadingLines } from '../content/site';
+import type { HeadingLines, TextPart } from '../content/site';
 
 interface Props {
   as?: 'h1' | 'h2';
@@ -8,19 +8,32 @@ interface Props {
 }
 
 const { as: Tag = 'h2', lines, class: className, ...rest } = Astro.props;
+
+// Split at build time: the reveal needs no script to measure text
+let count = 0;
+const toWords = (part: string | TextPart) => {
+  const { text, accent } = typeof part === 'string' ? { text: part, accent: false } : part;
+  return text
+    .trim()
+    .split(/\s+/)
+    .map((word) => ({ word, accent, index: count++ }));
+};
+const words = lines.map((line) => line.flatMap(toWords));
 ---
 
-<Tag class:list={['display', className]} data-split {...rest}>
-  {lines.map((line) => (
+<Tag class:list={['display', className]} {...rest}>
+  {words.map((line) => (
     <>
       <span class="block">
-        {line.map((part) =>
-          typeof part === 'string' ? (
-            part
-          ) : (
-            <span class={part.accent ? 'text-accent' : undefined}>{part.text}</span>
-          ),
-        )}
+        {line.map(({ word, accent, index }) => (
+          <>
+            <span class="word">
+              <span class:list={['word__in', { 'text-accent': accent }]} style={`--i: ${index}`}>
+                {word}
+              </span>
+            </span>{' '}
+          </>
+        ))}
       </span>{' '}
     </>
   ))}

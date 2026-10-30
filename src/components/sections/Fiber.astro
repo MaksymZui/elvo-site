@@ -22,9 +22,9 @@ const lines = [
   <div class="stage__media">
     <div class="frame" data-zoom>
       <ArtPicture mobile={fiberMobile} desktop={fiber} alt={imageAlt} />
-      <svg class="fiber-light" viewBox="0 0 1280 800" aria-hidden="true" data-fiber-light>
-        {lines.map((d) => (
-          <path d={d} />
+      <svg class="fiber-light" viewBox="0 0 1280 800" aria-hidden="true">
+        {lines.map((d, index) => (
+          <path d={d} pathLength="1" style={`--i: ${index}`} />
         ))}
       </svg>
     </div>

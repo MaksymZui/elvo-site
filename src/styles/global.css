@@ -78,6 +78,16 @@
 
 @layer components {
   /* Type */
+  .word {
+    display: inline-block;
+    overflow: clip;
+    overflow-clip-margin: 0.08em;
+  }
+
+  .word__in {
+    display: inline-block;
+  }
+
   .display {
     font-size: clamp(1.75rem, 7.6vw, 2.25rem);
     font-stretch: 118%;
@@ -787,11 +797,63 @@
   }
 }
 
-/* Reveal targets wait for motion.ts; without the class they are simply visible */
-html.motion [data-reveal],
-html.motion [data-split],
-html.motion [data-panel] {
+/* Without html.motion nothing here applies and every element is simply visible */
+html.motion {
+  --zoom: 1.04;
+}
+
+html.motion .screen:not(.is-in) .word__in {
+  transform: translateY(110%);
+}
+
+html.motion .screen:not(.is-in) [data-reveal],
+html.motion .screen:not(.is-in) [data-panel] {
   opacity: 0;
+  transform: translateY(1.5rem);
+}
+
+html.motion .is-in .word__in {
+  transition: transform 800ms var(--ease-soft) calc(var(--i) * 70ms);
+}
+
+html.motion .is-in [data-reveal],
+html.motion .is-in [data-panel] {
+  transition:
+    opacity 700ms var(--ease-soft),
+    transform 700ms var(--ease-soft);
+}
+
+html.motion .is-in [data-reveal] {
+  transition-delay: calc(300ms + var(--i) * 90ms);
+}
+
+html.motion .is-in [data-panel] {
+  transition-delay: calc(400ms + var(--i) * 70ms);
+}
+
+html.motion .is-in [data-zoom] {
+  transform: scale(var(--zoom));
+  transition: transform 8s linear;
+}
+
+html.motion .is-playing .fiber-light {
+  opacity: 0.9;
+}
+
+html.motion .is-playing .fiber-light path {
+  animation-play-state: running;
+}
+
+.fiber-light path {
+  stroke-dasharray: 0.12 1;
+  stroke-dashoffset: 0.12;
+  animation: fiber-run 2600ms linear calc(var(--i) * 320ms) infinite paused;
+}
+
+@keyframes fiber-run {
+  to {
+    stroke-dashoffset: -1;
+  }
 }
 
 /* Anchors move focus to the section: the scroll already shows where it went */

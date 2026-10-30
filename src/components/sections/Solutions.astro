@@ -38,9 +38,13 @@ const images = [
         </p>
       </div>
     </div>
-    {images.map((image) => (
+    {images.map((image, index) => (
       <Picture
-        pictureAttributes={{ class: `panel panel--${image.name}`, 'data-panel': true }}
+        pictureAttributes={{
+          class: `panel panel--${image.name}`,
+          style: `--i: ${index}`,
+          'data-panel': true,
+        }}
         src={image.src}
         alt={image.alt}
         formats={['avif', 'webp']}
