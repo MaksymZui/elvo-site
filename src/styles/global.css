@@ -804,3 +804,8 @@ html.motion [data-split],
 html.motion [data-panel] {
   opacity: 0;
 }
+
+/* Anchors move focus to the section: the scroll already shows where it went */
+.screen:focus {
+  outline: none;
+}
