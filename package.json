@@ -14,8 +14,8 @@
   "dependencies": {
     "@astrojs/sitemap": "3.7.4",
     "@tailwindcss/vite": "4.3.3",
-    "animejs": "4.5.0",
     "astro": "7.4.4",
+    "gsap": "3.15.0",
     "sharp": "0.35.5",
     "tailwindcss": "4.3.3"
   },

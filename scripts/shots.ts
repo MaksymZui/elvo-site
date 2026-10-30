@@ -80,7 +80,7 @@ async function checkFallbacks(browser: Browser): Promise<void> {
 
   const blocked = await browser.newContext({ viewport });
   const blockedPage = await blocked.newPage();
-  await blockedPage.route('**/anime.*.js', (route) => route.abort());
+  await blockedPage.route('**/gsap.*.js', (route) => route.abort());
   await blockedPage.goto(URL_BASE, { waitUntil: 'load' });
   await blockedPage.waitForTimeout(3000);
   await expectStaticPage(blockedPage, 'motion chunk blocked');

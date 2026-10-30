@@ -10,7 +10,7 @@ interface Props {
 const { as: Tag = 'h2', lines, class: className, ...rest } = Astro.props;
 ---
 
-<Tag class:list={['display', className]} {...rest}>
+<Tag class:list={['display', className]} data-split {...rest}>
   {lines.map((line) => (
     <span class="block">
       {line.map((part) =>

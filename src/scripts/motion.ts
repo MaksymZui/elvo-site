@@ -1,4 +1,4 @@
-import type * as Anime from './anime';
+import type * as Gsap from './gsap';
 
 declare global {
   interface Window {
@@ -6,30 +6,36 @@ declare global {
   }
 }
 
-type AnimeApi = typeof Anime;
+type GsapApi = typeof Gsap;
 
 const root = document.documentElement;
+const MOTION_ALLOWED = '(prefers-reduced-motion: no-preference)';
+const EASE = 'power3.out';
 
-function introHero({ animate, cubicBezier, splitText, stagger }: AnimeApi): void {
-  const heading = document.querySelector<HTMLElement>('[data-split]');
+const whenEntering = (section: Element) => ({
+  trigger: section,
+  start: 'top 70%',
+  once: true,
+});
+
+function revealHeading({ gsap, SplitText }: GsapApi, section: Element): void {
+  const heading = section.querySelector<HTMLElement>('[data-split]');
   if (!heading) return;
 
-  splitText(heading, { words: { wrap: 'clip' } }).addEffect(({ words }) => {
-    heading.style.opacity = '1';
-    return animate(words, {
-      y: ['110%', '0%'],
-      duration: 900,
-      delay: stagger(80),
-      ease: cubicBezier(0.22, 1, 0.36, 1),
-    });
-  });
-}
-
-function parallaxHero({ animate, onScroll }: AnimeApi): void {
-  animate('[data-parallax] img', {
-    translateY: ['0%', '6%'],
-    ease: 'linear',
-    autoplay: onScroll({ target: '#top', enter: 'top top', leave: 'top bottom', sync: true }),
+  SplitText.create(heading, {
+    type: 'words',
+    mask: 'words',
+    autoSplit: true,
+    onSplit: (self) => {
+      gsap.set(heading, { opacity: 1 });
+      return gsap.from(self.words, {
+        yPercent: 110,
+        duration: 0.8,
+        stagger: 0.07,
+        ease: EASE,
+        scrollTrigger: whenEntering(section),
+      });
+    },
   });
 }
 
@@ -40,47 +46,82 @@ function revealOrder(section: Element): Element[] {
   return [...items.filter((item) => !isMedia(item)), ...items.filter(isMedia)];
 }
 
-function revealSections({ createTimeline, cubicBezier, onScroll, stagger }: AnimeApi): void {
-  const defaults = { duration: 700, ease: cubicBezier(0.22, 1, 0.36, 1) };
+function revealContent({ gsap }: GsapApi, section: Element): void {
+  const items = revealOrder(section);
+  if (items.length > 0) {
+    gsap.fromTo(
+      items,
+      { opacity: 0, y: 24 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        delay: 0.3,
+        stagger: 0.09,
+        ease: EASE,
+        scrollTrigger: whenEntering(section),
+      },
+    );
+  }
 
-  document.querySelectorAll('[data-section]').forEach((section) => {
-    const items = revealOrder(section);
-    const panels = section.querySelectorAll('[data-panel]');
-    const timeline = createTimeline({
-      defaults,
-      autoplay: onScroll({ target: section, enter: 'bottom-=12% top', repeat: false }),
-    });
+  const panels = section.querySelectorAll('[data-panel]');
+  if (panels.length > 0) {
+    gsap.fromTo(
+      panels,
+      { opacity: 0, y: 24 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        delay: 0.4,
+        stagger: 0.07,
+        ease: EASE,
+        scrollTrigger: whenEntering(section),
+      },
+    );
+  }
+}
 
-    if (items.length > 0) {
-      timeline.add(items, { opacity: [0, 1], y: [32, 0], delay: stagger(90) });
-    }
-    if (panels.length > 0) {
-      timeline.add(panels, { opacity: [0, 1], y: [32, 0], delay: stagger(60) }, '-=400');
-    }
+function parallaxHero({ gsap }: GsapApi): void {
+  gsap.to('[data-parallax] img', {
+    yPercent: 6,
+    ease: 'none',
+    scrollTrigger: { trigger: '#top', start: 'top top', end: 'bottom top', scrub: true },
   });
 }
 
-function runFiberLight({ animate, createDrawable, onScroll, stagger }: AnimeApi): void {
+function runFiberLight({ gsap }: GsapApi): void {
   const light = document.querySelector<SVGSVGElement>('[data-fiber-light]');
   if (!light) return;
 
-  light.style.opacity = '.9';
-  animate(createDrawable(light.querySelectorAll('path')), {
-    draw: ['0 0', '0 .12', '.88 1', '1 1'],
-    duration: 2600,
-    delay: stagger(320),
-    loop: true,
-    ease: 'linear',
-    autoplay: onScroll({ target: light.parentElement!, sync: 'play pause' }),
-  });
+  gsap.set(light, { opacity: 0.9 });
+  gsap.fromTo(
+    light.querySelectorAll('path'),
+    { drawSVG: '0% 0%' },
+    {
+      keyframes: [
+        { drawSVG: '0% 12%', duration: 0.3 },
+        { drawSVG: '88% 100%', duration: 2 },
+        { drawSVG: '100% 100%', duration: 0.3 },
+      ],
+      ease: 'none',
+      stagger: { each: 0.32, repeat: -1 },
+      scrollTrigger: {
+        trigger: light.parentElement,
+        start: 'top bottom',
+        end: 'bottom top',
+        toggleActions: 'play pause resume pause',
+      },
+    },
+  );
 }
 
 async function start(): Promise<void> {
   if (!root.classList.contains('motion')) return;
 
-  let anime: AnimeApi;
+  let api: GsapApi;
   try {
-    anime = await import('./anime');
+    api = await import('./gsap');
   } catch {
     root.classList.remove('motion');
     return;
@@ -90,18 +131,20 @@ async function start(): Promise<void> {
   if (!root.classList.contains('motion')) return;
   window.clearTimeout(window.__motionGuard);
 
-  const scope = anime.createScope().add(() => {
-    introHero(anime);
-    parallaxHero(anime);
-    revealSections(anime);
-    runFiberLight(anime);
+  const media = api.gsap.matchMedia();
+  media.add(MOTION_ALLOWED, () => {
+    document.querySelectorAll('[data-section]').forEach((section) => {
+      revealHeading(api, section);
+      revealContent(api, section);
+    });
+    parallaxHero(api);
+    runFiberLight(api);
   });
 
   window.addEventListener(
     'pagehide',
     (event) => {
-      if (event.persisted) return;
-      scope.revert();
+      if (!event.persisted) media.revert();
     },
     { once: true },
   );
