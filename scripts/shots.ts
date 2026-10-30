@@ -1,6 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { chromium, type Browser, type Page } from 'playwright';
-import { startPreview, URL_BASE } from './preview.ts';
+import { isPagesPreview, startPreview, URL_BASE } from './preview.ts';
 
 const OUT = '.local/shots';
 const SECTIONS = ['top', 'drones', 'payload', 'fiber', 'solutions', 'contact'];
@@ -54,6 +54,17 @@ const slideIndex = (page: Page) =>
 
 const horizontalOverflow = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+
+/** Script errors and failed requests: a 404 here is usually a path that missed the base. */
+function watchPage(page: Page, label: string): void {
+  page.on('pageerror', (error) => fail(`${label}: page error: ${error.message}`));
+  page.on('console', (message) => {
+    if (message.type() === 'error') fail(`${label}: console: ${message.text()}`);
+  });
+  page.on('response', (response) => {
+    if (response.status() >= 400) fail(`${label}: ${response.status()} ${response.url()}`);
+  });
+}
 
 async function openPage(page: Page, path = ''): Promise<void> {
   await page.goto(`${URL_BASE}${path}`, { waitUntil: 'load' });
@@ -248,7 +259,7 @@ async function checkSliderViewport(browser: Browser, viewport: Viewport): Promis
     deviceScaleFactor: scale,
   });
   const page = await context.newPage();
-  page.on('pageerror', (error) => fail(`${label}: page error: ${error.message}`));
+  watchPage(page, label);
 
   await openSlider(page);
 
@@ -531,7 +542,7 @@ async function checkScrollViewport(browser: Browser, viewport: Viewport): Promis
   const page = await context.newPage();
   const requests: string[] = [];
   page.on('request', (request) => requests.push(request.url()));
-  page.on('pageerror', (error) => fail(`${label}: page error: ${error.message}`));
+  watchPage(page, label);
 
   await openPage(page);
   await page.waitForTimeout(800);
@@ -725,12 +736,57 @@ async function checkFallbacks(browser: Browser): Promise<void> {
   console.log('slider chunk blocked: ok');
 }
 
+/** What differs between the real site and the Pages preview. */
+async function checkHead(browser: Browser): Promise<void> {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  watchPage(page, 'head');
+  await page.goto(URL_BASE, { waitUntil: 'load' });
+
+  const head = await page.evaluate(() => ({
+    canonical: document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href,
+    robots: document.querySelector('meta[name="robots"]')?.getAttribute('content') ?? null,
+    ogImage: document.querySelector('meta[property="og:image"]')?.getAttribute('content'),
+    icons: [
+      ...document.querySelectorAll<HTMLLinkElement>(
+        'link[rel~="icon"], link[rel="apple-touch-icon"]',
+      ),
+    ].map((link) => link.href),
+  }));
+
+  expectEqual(head.canonical, 'https://elvo.technology/', 'head: canonical');
+  expectEqual(head.robots, isPagesPreview ? 'noindex, nofollow' : null, 'head: robots meta');
+  expectEqual(
+    head.ogImage,
+    isPagesPreview
+      ? 'https://maksymzui.github.io/elvo-site/og-image.jpg'
+      : 'https://elvo.technology/og-image.jpg',
+    'head: og:image',
+  );
+
+  const status = async (url: string) => (await context.request.get(url)).status();
+  expectEqual(head.icons.length, 3, 'head: icons');
+  for (const icon of head.icons) expectEqual(await status(icon), 200, `head: ${icon}`);
+  expectEqual(await status(`${URL_BASE}og-image.jpg`), 200, 'head: og-image file');
+  expectEqual(await status(`${URL_BASE}sitemap-index.xml`), isPagesPreview ? 404 : 200, 'sitemap');
+
+  const robots = await (await context.request.get(`${URL_BASE}robots.txt`)).text();
+  const expected = isPagesPreview
+    ? 'Disallow: /'
+    : 'Sitemap: https://elvo.technology/sitemap-index.xml';
+  if (!robots.includes(expected)) fail(`robots.txt has no "${expected}"`);
+
+  await context.close();
+  console.log(`head: ok (${isPagesPreview ? 'Pages preview' : 'real site'})`);
+}
+
 await mkdir(OUT, { recursive: true });
 const server = await startPreview();
 const browser = await chromium.launch();
 const main: Viewport = SLIDER_VIEWPORTS[0]!;
 
 try {
+  await checkHead(browser);
   for (const viewport of SLIDER_VIEWPORTS) await checkSliderViewport(browser, viewport);
   for (const viewport of SCROLL_VIEWPORTS) await checkScrollViewport(browser, viewport);
   await checkControls(browser, main);

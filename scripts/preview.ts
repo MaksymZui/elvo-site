@@ -4,7 +4,9 @@ import { extname, join, normalize } from 'node:path';
 import { createGzip } from 'node:zlib';
 
 export const PORT = 4329;
-export const URL_BASE = `http://localhost:${PORT}/`;
+export const isPagesPreview = process.env.PREVIEW === 'pages';
+const BASE = isPagesPreview ? '/elvo-site/' : '/';
+export const URL_BASE = `http://localhost:${PORT}${BASE}`;
 
 const ROOT = 'dist';
 /** Same as nginx in production: Lighthouse timings mean nothing on uncompressed text. */
@@ -27,9 +29,14 @@ const TYPES: Record<string, string> = {
 export async function startPreview(): Promise<{ kill: () => void }> {
   const server = createServer((request, response) => {
     const { pathname } = new URL(request.url ?? '/', URL_BASE);
-    const file = join(ROOT, normalize(pathname), pathname.endsWith('/') ? 'index.html' : '');
+    const file = join(
+      ROOT,
+      normalize(pathname.slice(BASE.length)),
+      pathname.endsWith('/') ? 'index.html' : '',
+    );
 
-    if (!existsSync(file)) {
+    // Nothing outside the base exists, as on Pages: a path that forgot it must fail here too
+    if (!pathname.startsWith(BASE) || !existsSync(file)) {
       response.writeHead(404).end();
       return;
     }
