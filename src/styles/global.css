@@ -856,6 +856,84 @@ html.motion .is-playing .fiber-light path {
   }
 }
 
+/* Slider mode. The class is set in <head>, so these rules hold before Swiper starts too */
+html.slider {
+  --zoom: 1.08;
+  overflow: hidden;
+  scroll-behavior: auto;
+}
+
+html.slider main {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+}
+
+html.slider .screens {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+html.slider .screen {
+  flex: none;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+html.slider .screen__body {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* A linked slide shows at once instead of the hero flashing first */
+html.slider main:not(.swiper-initialized):has(.screen:target) .screen:not(:target) {
+  display: none;
+}
+
+/* Text below the photo: the picture gives way so the slide fits a low screen */
+@media not all and (min-width: 1024px) and (min-aspect-ratio: 3/2) {
+  html.slider .stage__media {
+    height: min(40vw, 45svh);
+    aspect-ratio: auto;
+  }
+}
+
+/* What Swiper needs from its own stylesheet. That file would stay after destroy() and break the
+   scrolling mode, so only these rules are kept, all tied to the initialized slider */
+.swiper-vertical {
+  touch-action: pan-x;
+}
+
+/* In creative the z-index flips halfway: only 3D order keeps the new slide on top the whole way */
+.swiper-3d {
+  perspective: 1200px;
+}
+
+.swiper-3d .screens {
+  transform-style: preserve-3d;
+}
+
+.swiper-creative .screen {
+  overflow: hidden;
+  backface-visibility: hidden;
+  transition-property: transform, opacity;
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.swiper-slide-shadow {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  background: rgb(0 0 0 / 60%);
+  pointer-events: none;
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
 /* Anchors move focus to the section: the scroll already shows where it went */
 .screen:focus {
   outline: none;

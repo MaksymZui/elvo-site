@@ -1,6 +1,7 @@
 ---
 import { Font } from 'astro:assets';
 import { site } from '../content/site';
+import { SLIDER_MEDIA } from '../lib/slider-mode';
 import '../styles/global.css';
 
 const canonical = new URL('/', site.url).href;
@@ -39,12 +40,14 @@ const ogImage = new URL('/og-image.jpg', site.url).href;
     <slot name="head" />
 
     <!-- Hides reveal targets only when motion will really run. The timer restores them if it does not. -->
-    <script is:inline>
+    <script is:inline define:vars={{ sliderMedia: SLIDER_MEDIA }}>
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
         var root = document.documentElement;
         root.classList.add('motion');
+        // Set before first paint, or the scrollbar would vanish and shift the layout at slider start
+        root.classList.toggle('slider', matchMedia(sliderMedia).matches);
         window.__motionGuard = setTimeout(function () {
-          root.classList.remove('motion');
+          root.classList.remove('motion', 'slider');
         }, 2500);
       }
     </script>
