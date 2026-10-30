@@ -1,0 +1,10 @@
+.astro
+.git
+.local
+dist
+docs
+node_modules
+scripts
+*.md
+Dockerfile
+docker-compose.prod.yml

@@ -1,0 +1,23 @@
+# Production on the shared server (/opt/elvo). No published ports:
+# Product Hub's nginx reaches the site through the external `edge` network as elvo-web:80.
+#   bash deploy/deploy.sh
+name: elvo
+
+services:
+  web:
+    build: .
+    image: elvo-web:latest
+    container_name: elvo-web
+    restart: unless-stopped
+    networks:
+      - edge
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://127.0.0.1/']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  edge:
+    external: true
