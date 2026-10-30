@@ -38,9 +38,10 @@
 - Файлы: Dockerfile (multi-stage node → nginx:alpine), docker-compose.prod.yml, deploy/nginx-elvo.conf (server-блок для общего nginx), deploy/deploy.sh (git pull → build → up -d), docs/DEPLOY.md.
 - Кэш: /_astro/* immutable 1 год, html no-cache; gzip.
 - DNS (Namecheap): A-записи @ и www на IP сервера. MX и TXT (Google Workspace: verification, SPF, DKIM, DMARC) НЕ трогать.
+- Временное превью: GitHub Pages, https://maksymzui.github.io/elvo-site/, `.github/workflows/pages.yml`. Включается только `PREVIEW=pages`: другой `site` и `base`, noindex, без sitemap. Обычная сборка от него не меняется. Все пути из `public/` — через `import.meta.env.BASE_URL`. Включение и выключение: docs/DEPLOY.md.
 
 ## Git
-- origin = https://github.com/MaksymZui/elvo-site.git, ветка main. Коммит на логический пункт, сообщения на английском. Не пушить. .env не коммитить.
+- origin = https://github.com/MaksymZui/elvo-site.git, ветка main, репозиторий публичный. Автор коммитов — GitHub noreply (локальный git config), личную почту в историю не вносить. Коммит на логический пункт, сообщения на английском. Не пушить. .env не коммитить.
 
 ## Решения по ходу работы
 Уточняют правила выше; при расхождении приоритет у этого блока.

@@ -127,6 +127,42 @@ curl -sI -H 'Accept-Encoding: gzip' "https://elvo.technology$(curl -s https://el
 
 Ожидается: `/` отдаёт 200 с `cache-control: no-cache`; `www` и `http` отдают 301 на `https://elvo.technology/`; файлы `/_astro/*` приходят с `immutable` и `content-encoding: gzip`.
 
+## Временное превью на GitHub Pages
+
+Адрес: https://maksymzui.github.io/elvo-site/. Нужно, чтобы показать сайт по ссылке до запуска сервера. Собирается автоматически на каждый push в `main` (`.github/workflows/pages.yml`).
+
+Обычная сборка для сервера от него не зависит: всё включается только переменной `PREVIEW=pages`, которую задаёт workflow.
+
+### Как включить
+
+1. Репозиторий должен быть публичным или на GitHub Pro. Сейчас он публичный. На Pro сам сайт всё равно открыт всем, приватным он не будет.
+2. **До первого push:** Settings → Pages → Build and deployment → Source: **GitHub Actions**. Если push случился раньше, шаг деплоя упадёт: включите Pages и запустите заново в Actions → Pages preview → Re-run all jobs.
+3. `git push`. Через пару минут сайт откроется по адресу выше.
+
+### Чем превью отличается от сайта
+
+- `<meta name="robots" content="noindex, nofollow">`, нет sitemap, `canonical` указывает на https://elvo.technology.
+- `robots.txt` содержит `Disallow: /`, но поисковики читают его только в корне домена, поэтому `/elvo-site/robots.txt` они игнорируют. От индексации защищает `noindex`.
+- `og:image` берётся с адреса Pages, иначе ссылка в мессенджерах была бы без картинки: на elvo.technology её ещё нет.
+
+### Локальная проверка (PowerShell)
+
+```powershell
+$env:PREVIEW = 'pages'
+npm run build
+npm run shots
+Remove-Item Env:PREVIEW
+npm run build
+```
+
+Последние две строки обязательны: иначе в `dist/` останется сборка с `/elvo-site/`.
+
+### Как выключить после запуска домена
+
+1. Удалить `.github/workflows/pages.yml` и запушить: иначе следующий push опубликует сайт снова.
+2. Settings → Pages → кнопка **Unpublish site** в блоке с адресом сайта.
+3. Убрать из кода ветки `PREVIEW`: `astro.config.mjs`, `src/lib/build.ts`, `Base.astro`, `src/pages/robots.txt.ts`, `scripts/preview.ts`, `scripts/shots.ts`.
+
 ## Если что-то пошло не так
 
 - **`502` на elvo.technology:** контейнер не запущен или не в сети `edge`. `docker ps | grep elvo-web`, затем шаг 2. Остальные сайты это не затрагивает: адрес `elvo-web` nginx резолвит при запросе.
