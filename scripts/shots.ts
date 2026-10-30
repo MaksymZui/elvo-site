@@ -6,6 +6,8 @@ const OUT = '.local/shots';
 const SECTIONS = ['top', 'drones', 'payload', 'fiber', 'solutions', 'contact'];
 const CPU_SLOWDOWN = 4;
 const FRAME_BUDGET_MS = 33.4;
+/** Fixed elements land in the middle of a shot taller than the screen. */
+const HIDE_FIXED = '.header, .skip-link { visibility: hidden; }';
 /** Longer than the transition plus the wheel lock in slider.ts. */
 const SETTLE_MS = 1600;
 
@@ -22,8 +24,9 @@ const SLIDER_VIEWPORTS: Viewport[] = [
 ];
 
 const SCROLL_VIEWPORTS: Viewport[] = [
-  { width: 390, height: 844, scale: 2 },
   { width: 360, height: 640, scale: 2 },
+  { width: 390, height: 844, scale: 2 },
+  { width: 430, height: 932, scale: 2 },
 ];
 
 /** Lowest screens that still get the slider: every slide must fit without inner scrolling. */
@@ -366,7 +369,7 @@ async function checkSwipe(browser: Browser): Promise<void> {
   await openSlider(page);
 
   const cdp = await context.newCDPSession(page);
-  const touch = (type: string, y: number) =>
+  const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', y: number) =>
     cdp.send('Input.dispatchTouchEvent', {
       type,
       touchPoints: type === 'touchEnd' ? [] : [{ x: 384, y }],
@@ -409,11 +412,23 @@ async function checkModeSwitch(browser: Browser): Promise<void> {
   expectEqual(Boolean(scrolling.styled), false, 'switch to scroll: inline styles');
   if (scrolling.range <= 0) fail('switch to scroll: the page does not scroll');
 
+  // Down to a phone: the section sheds the slide height
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(800);
+  const phone = await page.evaluate(() => ({
+    drones: document.getElementById('drones')!.offsetHeight,
+    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  }));
+  expectEqual(phone.overflow, 0, 'switch to phone: horizontal overflow');
+  if (phone.drones === 844) fail('switch to phone: section kept the height of the screen');
+
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.waitForFunction(() =>
     document.getElementById('main')?.classList.contains('swiper-initialized'),
   );
   await page.waitForTimeout(SETTLE_MS);
+  const slide = await page.evaluate(() => document.getElementById('drones')!.offsetHeight);
+  expectEqual(slide, 900, 'switch back: slide height');
   await page.mouse.move(700, 450);
   const before = await slideIndex(page);
   await page.mouse.wheel(0, 120);
@@ -449,6 +464,63 @@ async function checkThreshold(browser: Browser): Promise<void> {
   console.log('threshold 650: all slides fit');
 }
 
+/** Sections 2-6 hug their content, the hero fills the first screen with its text at the bottom. */
+async function checkSectionLayout(page: Page, label: string, height: number): Promise<void> {
+  const layout = await page.evaluate(() => {
+    const pixels = (value: string) => Math.round(Number.parseFloat(value));
+    const sections = [...document.querySelectorAll<HTMLElement>('[data-section]')];
+    const hero = sections[0]!;
+    const features = hero.querySelector('.features')!.getBoundingClientRect();
+    const photo = hero.querySelector('.stage__media')!.getBoundingClientRect();
+    const fiber = document.querySelector('#fiber')!;
+    const media = fiber.querySelector('.stage__media')!.getBoundingClientRect();
+    const copy = fiber.querySelector('.stage__copy')!.getBoundingClientRect();
+
+    return {
+      heroHeight: hero.offsetHeight,
+      heroGapBelowText: Math.round(hero.getBoundingClientRect().bottom - features.bottom),
+      heroPhotoTop: Math.round(photo.top + window.scrollY),
+      heroPhotoHeight: Math.round(photo.height),
+      mediaHeight: Math.round(media.height),
+      mediaToText: Math.round(copy.top - media.bottom),
+      padding: sections.slice(1, 5).map((section) => {
+        const style = getComputedStyle(section.querySelector('[data-screen-body]')!);
+        return `${pixels(style.paddingTop)}/${pixels(style.paddingBottom)}`;
+      }),
+      centered: sections
+        .slice(1)
+        .filter(
+          (section) =>
+            getComputedStyle(section.querySelector('[data-screen-body]')!).justifyContent ===
+            'center',
+        )
+        .map((section) => section.id),
+    };
+  });
+
+  const width = page.viewportSize()!.width;
+  const section = width <= 430 ? 48 : 64;
+  expectEqual(layout.heroHeight >= height, true, `${label}: hero fills the first screen`);
+  expectEqual(layout.heroGapBelowText, section, `${label}: space under the hero text`);
+  expectEqual(layout.heroPhotoTop, 0, `${label}: hero photo starts at the top`);
+  expectEqual(layout.mediaToText, 24, `${label}: gap between photo and text`);
+  expectEqual(
+    layout.padding.join(' '),
+    Array(4).fill(`${section}/${section}`).join(' '),
+    `${label}: padding`,
+  );
+  expectEqual(layout.centered.length, 0, `${label}: centered sections`);
+
+  const share = layout.mediaHeight / height;
+  if (share > 0.56 || (height >= 800 && share < 0.49)) {
+    fail(`${label}: photo is ${Math.round(share * 100)}% of the screen`);
+  }
+  console.log(
+    `${label}: hero photo ${layout.heroPhotoHeight}px, section photo ${layout.mediaHeight}px ` +
+      `(${Math.round(share * 100)}%)`,
+  );
+}
+
 async function checkScrollViewport(browser: Browser, viewport: Viewport): Promise<void> {
   const { width, height, scale } = viewport;
   const label = `${width}x${height}`;
@@ -467,24 +539,14 @@ async function checkScrollViewport(browser: Browser, viewport: Viewport): Promis
   expectEqual(await horizontalOverflow(page), 0, `${label}: horizontal overflow`);
   if (requests.some((url) => url.includes('slider.'))) fail(`${label}: slider chunk was loaded`);
 
-  const heights = await page.evaluate(() =>
-    [...document.querySelectorAll<HTMLElement>('[data-section]')].map((section) => ({
-      id: section.id,
-      value: section.offsetHeight,
-    })),
-  );
-  for (const { id, value } of heights) {
-    if (value < height - 1) fail(`${label}: #${id} is ${value}px, shorter than the screen`);
-  }
-  const grown = heights.filter(({ value }) => value > height + 1).map(({ id }) => id);
+  await checkSectionLayout(page, label, height);
 
-  for (const id of SECTIONS) {
-    await page.evaluate((name) => {
-      document.getElementById(name)!.scrollIntoView({ behavior: 'instant' });
-    }, id);
-    await page.waitForTimeout(1600);
-    await page.screenshot({ path: `${OUT}/${width}-${id}.png` });
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < total; y += height / 2) {
+    await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y);
+    await page.waitForTimeout(150);
   }
+  await page.waitForTimeout(1400);
 
   const hidden = await page.evaluate(
     () =>
@@ -494,7 +556,16 @@ async function checkScrollViewport(browser: Browser, viewport: Viewport): Promis
   );
   expectEqual(hidden, 0, `${label}: elements that never appeared`);
 
-  console.log(`${label}: scroll ok${grown.length > 0 ? `, grown: ${grown.join(', ')}` : ''}`);
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${OUT}/${width}-full.png`, fullPage: true });
+  for (const id of SECTIONS) {
+    await page
+      .locator(`#${id}`)
+      .screenshot({ path: `${OUT}/${width}-${id}.png`, style: HIDE_FIXED });
+  }
+
+  expectEqual(await horizontalOverflow(page), 0, `${label}: horizontal overflow after scrolling`);
   await context.close();
 }
 
@@ -616,6 +687,16 @@ async function checkFallbacks(browser: Browser): Promise<void> {
   await expectScrollingPage(reducedPage, 'reduced motion');
   if (requests.some((url) => url.includes('slider.'))) fail('reduced motion: slider was loaded');
   await reducedPage.screenshot({ path: `${OUT}/reduced-motion.png` });
+
+  // Text over the photo keeps its size: the section must not collapse to the height of the text
+  const stage = await reducedPage.evaluate(() => document.getElementById('fiber')!.offsetHeight);
+  expectEqual(stage, viewport.height, 'reduced motion: photo section height');
+
+  // On a tablet it stacks, and then the section follows its content
+  await reducedPage.setViewportSize({ width: 768, height: 1024 });
+  await reducedPage.waitForTimeout(400);
+  const tablet = await reducedPage.evaluate(() => document.getElementById('fiber')!.offsetHeight);
+  if (tablet >= 1024) fail(`reduced motion on a tablet: section is ${tablet}px`);
   await reduced.close();
 
   const noScript = await browser.newContext({ viewport, javaScriptEnabled: false });

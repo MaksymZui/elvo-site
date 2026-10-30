@@ -1,4 +1,5 @@
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
+import { once } from 'node:events';
 import { mkdir, readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { startPreview, URL_BASE } from './preview.ts';
@@ -14,7 +15,7 @@ const failures: string[] = [];
 
 try {
   // Lighthouse defaults: mobile form factor, simulated slow 4G and 4x CPU slowdown
-  const run = spawnSync(
+  const run = spawn(
     process.execPath,
     [
       'node_modules/lighthouse/cli/index.js',
@@ -28,7 +29,7 @@ try {
     ],
     { env: { ...process.env, CHROME_PATH: chromium.executablePath() }, stdio: 'inherit' },
   );
-  if (run.error) throw run.error;
+  await once(run, 'close');
 
   const report = JSON.parse(await readFile(`${OUT}/report.report.json`, 'utf8'));
 

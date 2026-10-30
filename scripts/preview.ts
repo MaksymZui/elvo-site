@@ -1,26 +1,53 @@
-import { spawn, type ChildProcess } from 'node:child_process';
+import { createReadStream, existsSync } from 'node:fs';
+import { createServer } from 'node:http';
+import { extname, join, normalize } from 'node:path';
+import { createGzip } from 'node:zlib';
 
 export const PORT = 4329;
 export const URL_BASE = `http://localhost:${PORT}/`;
 
-/** Serves dist/ with `astro preview` and resolves once it answers. */
-export async function startPreview(): Promise<ChildProcess> {
-  const server = spawn(
-    process.execPath,
-    ['node_modules/astro/bin/astro.mjs', 'preview', '--port', String(PORT)],
-    { stdio: 'ignore' },
-  );
+const ROOT = 'dist';
+/** Same as nginx in production: Lighthouse timings mean nothing on uncompressed text. */
+const GZIP = new Set(['.html', '.css', '.js', '.svg', '.xml', '.txt']);
+const TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css',
+  '.js': 'text/javascript',
+  '.svg': 'image/svg+xml',
+  '.avif': 'image/avif',
+  '.webp': 'image/webp',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.woff2': 'font/woff2',
+  '.xml': 'application/xml',
+  '.txt': 'text/plain',
+};
 
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    try {
-      const response = await fetch(URL_BASE);
-      if (response.ok) return server;
-    } catch {
-      // not listening yet
+/** Serves dist/. Not `astro preview`: it allows one server per project, and one may be running. */
+export async function startPreview(): Promise<{ kill: () => void }> {
+  const server = createServer((request, response) => {
+    const { pathname } = new URL(request.url ?? '/', URL_BASE);
+    const file = join(ROOT, normalize(pathname), pathname.endsWith('/') ? 'index.html' : '');
+
+    if (!existsSync(file)) {
+      response.writeHead(404).end();
+      return;
     }
-    await new Promise((resolve) => setTimeout(resolve, 250));
-  }
+    const type = extname(file);
+    const gzip = GZIP.has(type) && String(request.headers['accept-encoding']).includes('gzip');
+    response.writeHead(200, {
+      'Content-Type': TYPES[type] ?? 'application/octet-stream',
+      ...(gzip ? { 'Content-Encoding': 'gzip' } : {}),
+    });
+    const body = createReadStream(file);
+    (gzip ? body.pipe(createGzip()) : body).pipe(response);
+  });
 
-  server.kill();
-  throw new Error('astro preview did not start; run `npm run build` first');
+  await new Promise<void>((resolve) => server.listen(PORT, resolve));
+  return {
+    kill: () => {
+      server.closeAllConnections();
+      server.close();
+    },
+  };
 }
