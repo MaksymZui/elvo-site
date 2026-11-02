@@ -12,9 +12,9 @@ export const site = {
   name: 'ELVO',
   url: 'https://elvo.technology',
   email: 'support@elvo.technology',
-  title: 'ELVO: Drones, Components, Payload and Fiber Optic Cable',
+  title: 'ELVO: Drones, Components, Payload and Thermal Cameras',
   description:
-    'ELVO supplies drones and components, gimbals and cameras for professional UAV applications, and G.657.A2 fiber optic cable.',
+    'ELVO supplies drones and components, gimbals and cameras for professional UAV applications, and the Eclipse 009CA thermal imaging camera for FPV drones.',
   ogImageAlt: 'ELVO logo over a drone flying at sunset',
   tagline: ['Electronics', 'Drones', 'Components'],
   skipLink: 'Skip to content',
