@@ -23,7 +23,6 @@
 
   --spacing-gutter: 1.25rem;
   --spacing-header: 4rem;
-  --spacing-footer: 5.8125rem;
   --spacing-section: 3rem;
   --spacing-stack: 1.5rem;
   --spacing-media: clamp(13.75rem, 52svh, min(120vw, 30rem));
@@ -711,67 +710,92 @@
 
   /* Section 6 */
   .contact {
-    background: radial-gradient(
-      ellipse at 50% 30%,
-      var(--color-surface-2),
-      var(--color-bg-deep) 70%
-    );
+    background:
+      radial-gradient(
+        ellipse 60% 55% at 50% 42%,
+        color-mix(in srgb, var(--color-brand) 8%, transparent),
+        transparent 70%
+      ),
+      linear-gradient(var(--color-surface-2), var(--color-bg) 70%);
   }
 
   .contact__decor {
     position: absolute;
-    display: none;
-    inset: 0;
-    width: 100%;
+    top: 0;
+    width: 40%;
     height: 100%;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  /* The inner edge fades: diagonals leave the strip there */
+  .contact__decor--left {
+    left: 0;
+    mask-image: linear-gradient(to right, black 72%, transparent);
+  }
+
+  .contact__decor--right {
+    right: 0;
+    mask-image: linear-gradient(to left, black 72%, transparent);
   }
 
   .contact__inner {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    align-items: center;
     margin-block: auto;
     padding-block: 2rem;
+    text-align: center;
   }
 
   .contact__logo {
     width: auto;
     height: 3rem;
-    margin-bottom: 1rem;
+  }
+
+  .contact__tagline {
+    justify-content: center;
+    margin-top: 1rem;
   }
 
   .glow-line {
+    position: relative;
     display: block;
+    width: min(34rem, 100%);
     height: 1px;
-    margin-block: 1.5rem;
-    background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+    margin-block: 1.25rem 1.5rem;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--color-accent) 55%, transparent) 30%,
+      var(--color-accent),
+      color-mix(in srgb, var(--color-accent) 55%, transparent) 70%,
+      transparent
+    );
   }
 
-  .contact__list {
-    display: grid;
-    gap: 1.25rem;
-  }
-
-  .contact__row {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .contact__icon {
-    flex: none;
-    width: 2rem;
+  .glow-line::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14rem;
     height: 2rem;
-    color: var(--color-icon);
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--color-brand) 55%, transparent),
+      transparent
+    );
+    transform: translate(-50%, -50%);
   }
 
   .contact__mail {
     display: inline-flex;
     align-items: center;
-    min-height: 2.75rem;
-    margin-top: -0.375rem;
-    font-size: 1.125rem;
+    gap: 1rem;
+    min-height: 3rem;
+    font-size: clamp(1.125rem, 5vw, 1.25rem);
     overflow-wrap: anywhere;
     text-decoration: underline;
     text-decoration-color: transparent;
@@ -783,66 +807,69 @@
     text-decoration-color: currentcolor;
   }
 
-  .contact__cta {
-    display: flex;
+  .contact__icon {
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-icon);
   }
 
-  @media (min-width: 1024px) and (min-aspect-ratio: 3/2) {
+  .contact__divider {
+    flex: none;
+    align-self: stretch;
+    width: 1px;
+    background: rgb(255 255 255 / 22%);
+  }
+
+  @media (min-width: 768px) {
     .contact__decor {
-      display: block;
+      width: 31%;
+      opacity: 1;
+    }
+
+    .contact__logo {
+      height: 4rem;
+    }
+
+    .contact__mail {
+      gap: 1.25rem;
+      font-size: 1.5rem;
+    }
+
+    .contact__icon {
+      width: 2.5rem;
+      height: 2.5rem;
     }
   }
 
   @media (min-width: 1024px) {
-    .contact__inner {
-      align-items: center;
-    }
-
-    .contact__block {
-      width: min(34rem, 100%);
-    }
-
     .contact__logo {
       height: 5rem;
-      margin-inline: auto;
     }
 
-    .contact__block .tagline {
-      justify-content: center;
-    }
-
-    .contact__list {
-      width: fit-content;
-      margin-inline: auto;
+    .glow-line {
+      margin-block-end: 2.5rem;
     }
 
     .contact__mail {
-      font-size: 1.5rem;
+      gap: 1.5rem;
+      min-height: 3.5rem;
+      font-size: 1.75rem;
     }
 
-    .contact__cta {
-      justify-content: center;
+    .contact__icon {
+      width: 2.75rem;
+      height: 2.75rem;
     }
   }
 
-  /* Footer */
+  /* Footer: one thin line at the bottom of the last section */
   .footer {
     position: relative;
-    display: flex;
-    min-height: var(--spacing-footer);
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem 1.5rem;
+    padding-block: 0.75rem;
     border-top: 1px solid var(--color-line);
-    background: var(--color-bg-deep);
     color: var(--color-muted);
-  }
-
-  .footer__mail {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
+    text-align: center;
   }
 }
 

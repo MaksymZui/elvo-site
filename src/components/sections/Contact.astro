@@ -6,74 +6,254 @@ import Icon from '../Icon.astro';
 import Screen from '../Screen.astro';
 import Tagline from '../Tagline.astro';
 
-const { company, address, emailLabel, addressLabel } = site.contact;
-const mailto = `mailto:${site.email}`;
+const { emailLabel } = site.contact;
 ---
 
 <Screen id="contact" class="contact">
+  <!-- Panels from docs/8.jpg, in its 1280x512 pixels. Each side is anchored to its edge, and the
+       diagonals run past the viewBox so a taller screen still has them edge to edge -->
   <svg
-    class="contact__decor"
-    viewBox="0 0 1280 512"
-    preserveAspectRatio="xMidYMid slice"
+    class="contact__decor contact__decor--left"
+    viewBox="0 0 400 512"
+    preserveAspectRatio="xMinYMid meet"
     aria-hidden="true"
   >
     <defs>
-      <linearGradient id="decor-stroke" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="var(--color-accent)" />
-        <stop offset="1" stop-color="var(--color-brand)" stop-opacity="0" />
+      <linearGradient
+        id="cl-fill-a"
+        gradientUnits="userSpaceOnUse"
+        x1="282"
+        y1="128"
+        x2="20"
+        y2="500"
+      >
+        <stop offset="0" stop-color="#1c63ff" stop-opacity=".42" />
+        <stop offset=".5" stop-color="#024dfc" stop-opacity=".12" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity="0" />
       </linearGradient>
-      <linearGradient id="decor-fill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="var(--color-brand)" stop-opacity=".16" />
-        <stop offset="1" stop-color="var(--color-brand)" stop-opacity="0" />
+      <linearGradient
+        id="cl-fill-b"
+        gradientUnits="userSpaceOnUse"
+        x1="262"
+        y1="420"
+        x2="120"
+        y2="560"
+      >
+        <stop offset="0" stop-color="#1c63ff" stop-opacity=".5" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity="0" />
       </linearGradient>
+      <linearGradient
+        id="cl-edge"
+        gradientUnits="userSpaceOnUse"
+        x1="282"
+        y1="128"
+        x2="-30"
+        y2="600"
+      >
+        <stop offset="0" stop-color="#e6f2ff" />
+        <stop offset=".22" stop-color="#7fb8ff" stop-opacity=".55" />
+        <stop offset=".4" stop-color="#cfe6ff" />
+        <stop offset=".62" stop-color="#5c9dff" stop-opacity=".5" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity="0" />
+      </linearGradient>
+      <linearGradient
+        id="cl-line"
+        gradientUnits="userSpaceOnUse"
+        x1="166"
+        y1="-10"
+        x2="-120"
+        y2="430"
+      >
+        <stop offset="0" stop-color="#3d7fe0" stop-opacity=".25" />
+        <stop offset=".45" stop-color="#9dcdf8" stop-opacity=".85" />
+        <stop offset=".6" stop-color="#3d7fe0" stop-opacity=".3" />
+        <stop offset="1" stop-color="#3d7fe0" stop-opacity="0" />
+      </linearGradient>
+      <radialGradient id="cl-bloom">
+        <stop offset="0" stop-color="#2f7bff" stop-opacity=".7" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity="0" />
+      </radialGradient>
     </defs>
-    <g fill="url(#decor-fill)" stroke="url(#decor-stroke)" stroke-width="1.5">
-      <path d="M130 128H281L60 512H-90Z" />
-      <path d="M96 420H262L200 512H34Z" />
-      <path d="M1064 222H1140L970 512H894Z" />
-      <path d="M1296 20V282H1106Z" />
-    </g>
-    <g stroke="var(--color-brand)" stroke-opacity=".5" fill="none">
-      <path d="M0 230 160 0" />
-      <path d="M30 512 310 0" />
-      <path d="M1140 512 1280 270" />
-      <path d="M880 512 1240 0" />
+    <path d="M509 -700H609L-682 1300H-782Z" fill="#000814" fill-opacity=".35" />
+    <path d="M610 -700L-677 1300" stroke="url(#cl-line)" stroke-width="1.4" />
+    <path d="M779 -700L-522 1300" stroke="#3d7fe0" stroke-opacity=".22" />
+    <path
+      d="M140 128H276Q285 128 280 136L-493 1300H-654L124 138Q129 128 140 128Z"
+      fill="url(#cl-fill-a)"
+    />
+    <path
+      d="M144 420H258Q266 420 261 427L-324 1300H-467L126 428Q132 420 144 420Z"
+      fill="url(#cl-fill-b)"
+    />
+    <ellipse
+      cx="160"
+      cy="305"
+      rx="70"
+      ry="16"
+      transform="rotate(-56 160 305)"
+      fill="url(#cl-bloom)"
+    />
+    <ellipse cx="272" cy="134" rx="26" ry="12" fill="url(#cl-bloom)" />
+    <ellipse cx="250" cy="428" rx="22" ry="10" fill="url(#cl-bloom)" opacity=".7" />
+    <g fill="none" stroke-linecap="round">
+      <path d="M281 133L-40 620" stroke="url(#cl-edge)" stroke-width="9" stroke-opacity=".12" />
+      <path d="M281 133L-40 620" stroke="url(#cl-edge)" stroke-width="4" stroke-opacity=".28" />
+      <path d="M281 133L-40 620" stroke="url(#cl-edge)" stroke-width="1.5" />
+      <path
+        d="M128 135Q131 128 141 128H276"
+        stroke="#9dcdf8"
+        stroke-opacity=".55"
+        stroke-width="1.2"
+      />
+      <path
+        d="M130 427Q134 420 144 420H258"
+        stroke="#9dcdf8"
+        stroke-opacity=".45"
+        stroke-width="1.2"
+      />
+      <path d="M261 427L120 640" stroke="#5c9dff" stroke-opacity=".35" stroke-width="1.2" />
     </g>
   </svg>
 
+  <svg
+    class="contact__decor contact__decor--right"
+    viewBox="880 0 400 512"
+    preserveAspectRatio="xMaxYMid meet"
+    aria-hidden="true"
+  >
+    <defs>
+      <linearGradient
+        id="cr-band"
+        gradientUnits="userSpaceOnUse"
+        x1="1200"
+        y1="0"
+        x2="900"
+        y2="512"
+      >
+        <stop offset="0" stop-color="#1c63ff" stop-opacity=".16" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity="0" />
+      </linearGradient>
+      <linearGradient
+        id="cr-fill-c"
+        gradientUnits="userSpaceOnUse"
+        x1="1080"
+        y1="222"
+        x2="900"
+        y2="560"
+      >
+        <stop offset="0" stop-color="#1c63ff" stop-opacity=".34" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity="0" />
+      </linearGradient>
+      <linearGradient
+        id="cr-fill-d"
+        gradientUnits="userSpaceOnUse"
+        x1="1150"
+        y1="220"
+        x2="1300"
+        y2="160"
+      >
+        <stop offset="0" stop-color="#1c63ff" stop-opacity=".42" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity=".05" />
+      </linearGradient>
+      <linearGradient
+        id="cr-edge-c"
+        gradientUnits="userSpaceOnUse"
+        x1="1070"
+        y1="228"
+        x2="700"
+        y2="790"
+      >
+        <stop offset="0" stop-color="#cfe6ff" />
+        <stop offset=".35" stop-color="#7fb8ff" stop-opacity=".7" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity="0" />
+      </linearGradient>
+      <linearGradient
+        id="cr-edge-d"
+        gradientUnits="userSpaceOnUse"
+        x1="1113"
+        y1="272"
+        x2="1300"
+        y2="-10"
+      >
+        <stop offset="0" stop-color="#9dcdf8" />
+        <stop offset=".55" stop-color="#e6f2ff" />
+        <stop offset="1" stop-color="#9dcdf8" stop-opacity=".6" />
+      </linearGradient>
+      <linearGradient
+        id="cr-line"
+        gradientUnits="userSpaceOnUse"
+        x1="1080"
+        y1="600"
+        x2="1300"
+        y2="266"
+      >
+        <stop offset="0" stop-color="#3d7fe0" stop-opacity="0" />
+        <stop offset=".45" stop-color="#9dcdf8" stop-opacity=".9" />
+        <stop offset="1" stop-color="#3d7fe0" stop-opacity=".3" />
+      </linearGradient>
+      <radialGradient id="cr-bloom">
+        <stop offset="0" stop-color="#2f7bff" stop-opacity=".7" />
+        <stop offset="1" stop-color="#024dfc" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <path d="M1606 -700H1718L397 1300H285Z" fill="url(#cr-band)" />
+    <path d="M1086 222H1200L488 1300H362L1068 232Q1074 222 1086 222Z" fill="url(#cr-fill-c)" />
+    <path d="M1121 281Q1108 281 1113 272L1757 -700H1900V281Z" fill="url(#cr-fill-d)" />
+    <ellipse
+      cx="1215"
+      cy="112"
+      rx="70"
+      ry="16"
+      transform="rotate(-56 1215 112)"
+      fill="url(#cr-bloom)"
+    />
+    <ellipse cx="1120" cy="276" rx="22" ry="10" fill="url(#cr-bloom)" opacity=".7" />
+    <ellipse
+      cx="1214"
+      cy="402"
+      rx="40"
+      ry="10"
+      transform="rotate(-56 1214 402)"
+      fill="url(#cr-bloom)"
+      opacity=".8"
+    />
+    <g fill="none" stroke-linecap="round">
+      <path d="M1070 228L700 790" stroke="url(#cr-edge-c)" stroke-width="8" stroke-opacity=".12" />
+      <path d="M1070 228L700 790" stroke="url(#cr-edge-c)" stroke-width="1.4" />
+      <path
+        d="M1070 229Q1074 222 1086 222H1140"
+        stroke="#9dcdf8"
+        stroke-opacity=".5"
+        stroke-width="1.2"
+      />
+      <path
+        d="M1113 272L1757 -700"
+        stroke="url(#cr-edge-d)"
+        stroke-width="9"
+        stroke-opacity=".14"
+      />
+      <path d="M1113 272L1757 -700" stroke="url(#cr-edge-d)" stroke-width="4" stroke-opacity=".3" />
+      <path d="M1113 272L1757 -700" stroke="url(#cr-edge-d)" stroke-width="1.5" />
+      <path d="M1121 281H1250" stroke="#9dcdf8" stroke-opacity=".55" stroke-width="1.2" />
+      <path d="M619 1300L1936 -700" stroke="url(#cr-line)" stroke-width="1.4" />
+      <path d="M589 1300L1907 -700" stroke="#3d7fe0" stroke-opacity=".3" />
+    </g>
+  </svg>
+
+  <span class="grain" aria-hidden="true"></span>
+
   <div class="contact__inner px-gutter">
-    <div class="contact__block">
-      <Logo class="contact__logo" aria-hidden="true" data-reveal />
-      <div data-reveal>
-        <Tagline />
-      </div>
-      <span class="glow-line" aria-hidden="true" data-reveal></span>
-      <ul class="contact__list">
-        <li class="contact__row" data-reveal>
-          <Icon name="mail" class="contact__icon" />
-          <span class="sr-only">{emailLabel}</span>
-          <a class="contact__mail" href={mailto}>
-            {site.email}
-          </a>
-        </li>
-        <li class="contact__row" data-reveal>
-          <Icon name="map-pin" class="contact__icon" />
-          <span class="sr-only">{addressLabel}</span>
-          <address class="not-italic">
-            {company}
-            <br />
-            {address[0]}
-            <br />
-            {address[1]}
-          </address>
-        </li>
-      </ul>
+    <Logo class="contact__logo" aria-hidden="true" data-reveal />
+    <div data-reveal>
+      <Tagline class="contact__tagline" />
     </div>
-    <div class="contact__cta" data-reveal>
-      <a class="btn" href={mailto}>
-        {site.contactLabel}
-      </a>
-    </div>
+    <span class="glow-line" aria-hidden="true" data-reveal></span>
+    <a class="contact__mail" href={`mailto:${site.email}`} data-reveal>
+      <Icon name="mail" class="contact__icon" />
+      <span class="contact__divider" aria-hidden="true"></span>
+      <span class="sr-only">{emailLabel}:</span>
+      {site.email}
+    </a>
   </div>
   <Footer />
 </Screen>

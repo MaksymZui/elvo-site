@@ -19,6 +19,7 @@ interface Viewport {
 
 const SLIDER_VIEWPORTS: Viewport[] = [
   { width: 1440, height: 900, scale: 1 },
+  { width: 1366, height: 650, scale: 1 },
   { width: 1024, height: 768, scale: 1 },
   { width: 768, height: 1024, scale: 1 },
 ];
@@ -492,6 +493,11 @@ async function checkSectionLayout(page: Page, label: string, height: number): Pr
     const thermal = document.querySelector('#thermal')!;
     const media = thermal.querySelector('.stage__media')!.getBoundingClientRect();
     const copy = thermal.querySelector('.stage__copy')!.getBoundingClientRect();
+    const contact = document.getElementById('contact')!;
+    // Offsets, not rects: a reveal that has not run yet moves the email down
+    const inner = contact.querySelector<HTMLElement>('.contact__inner')!;
+    const mail = contact.querySelector<HTMLElement>('.contact__mail')!;
+    const footer = contact.querySelector<HTMLElement>('.footer')!;
 
     return {
       heroHeight: hero.offsetHeight,
@@ -500,6 +506,9 @@ async function checkSectionLayout(page: Page, label: string, height: number): Pr
       heroPhotoHeight: Math.round(photo.height),
       mediaHeight: Math.round(media.height),
       mediaToText: Math.round(copy.top - media.bottom),
+      contactTop: pixels(getComputedStyle(contact.querySelector('[data-screen-body]')!).paddingTop),
+      mailToFooter: footer.offsetTop - (inner.offsetTop + mail.offsetTop + mail.offsetHeight),
+      footerHeight: footer.offsetHeight,
       padding: sections.slice(1, 5).map((section) => {
         const style = getComputedStyle(section.querySelector('[data-screen-body]')!);
         return `${pixels(style.paddingTop)}/${pixels(style.paddingBottom)}`;
@@ -527,6 +536,10 @@ async function checkSectionLayout(page: Page, label: string, height: number): Pr
     `${label}: padding`,
   );
   expectEqual(layout.centered.length, 0, `${label}: centered sections`);
+  // The last section stays compact: no empty field between the address and the footer
+  expectEqual(layout.contactTop, section, `${label}: space above the contacts`);
+  expectEqual(layout.mailToFooter, section, `${label}: space between the email and the footer`);
+  if (layout.footerHeight > 56) fail(`${label}: footer is ${layout.footerHeight}px tall`);
 
   const share = layout.mediaHeight / height;
   if (share > 0.56 || (height >= 800 && share < 0.49)) {
@@ -536,6 +549,34 @@ async function checkSectionLayout(page: Page, label: string, height: number): Pr
     `${label}: hero photo ${layout.heroPhotoHeight}px, section photo ${layout.mediaHeight}px ` +
       `(${Math.round(share * 100)}%)`,
   );
+}
+
+/** Without the slider, a link to a section must land on it just under the header. */
+async function checkScrollHashes(browser: Browser): Promise<void> {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  for (const id of ['thermal', 'contact']) {
+    const page = await context.newPage();
+    await openPage(page, `#${id}`);
+    const place = (name: string) => {
+      const header = document.querySelector('.header')!.getBoundingClientRect().height;
+      const top = document.getElementById(name)!.getBoundingClientRect().top;
+      const end = document.documentElement.scrollHeight - window.innerHeight;
+      // The last section may be shorter than the screen: then the page simply ends
+      const atEnd = Math.abs(window.scrollY - end) <= 1 && top > header;
+      return { offset: Math.round(top - header), landed: Math.abs(top - header) <= 1 || atEnd };
+    };
+    // The jump to the fragment is smooth: give it time, then make sure it stays there
+    for (let waited = 0; waited < 6000; waited += 200) {
+      if ((await page.evaluate(place, id)).landed) break;
+      await page.waitForTimeout(200);
+    }
+    await page.waitForTimeout(500);
+    const result = await page.evaluate(place, id);
+    if (!result.landed) fail(`scroll hash #${id}: section is ${result.offset}px off the header`);
+    await page.close();
+  }
+  await context.close();
+  console.log('scroll hashes: ok');
 }
 
 async function checkScrollViewport(browser: Browser, viewport: Viewport): Promise<void> {
@@ -798,6 +839,7 @@ try {
   await checkHead(browser);
   for (const viewport of SLIDER_VIEWPORTS) await checkSliderViewport(browser, viewport);
   for (const viewport of SCROLL_VIEWPORTS) await checkScrollViewport(browser, viewport);
+  await checkScrollHashes(browser);
   await checkControls(browser, main);
   await checkHashes(browser, main);
   await checkTabbing(browser, main);

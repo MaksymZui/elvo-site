@@ -83,10 +83,7 @@ export const site = {
     },
   },
   contact: {
-    company: 'E-TRADE GROUP Sp. z o.o.',
-    address: ['00-855 Warszawa', 'Grzybowska 43, 1p'],
     emailLabel: 'Email',
-    addressLabel: 'Address',
   },
   copyright: '© ELVO',
 };
