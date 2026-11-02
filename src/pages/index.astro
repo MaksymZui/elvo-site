@@ -4,10 +4,10 @@ import heroMobile from '../assets/sections/hero-mobile.webp';
 import Header from '../components/Header.astro';
 import Contact from '../components/sections/Contact.astro';
 import Drones from '../components/sections/Drones.astro';
-import Fiber from '../components/sections/Fiber.astro';
 import Hero from '../components/sections/Hero.astro';
 import Payload from '../components/sections/Payload.astro';
 import Solutions from '../components/sections/Solutions.astro';
+import Thermal from '../components/sections/Thermal.astro';
 import { site } from '../content/site';
 import Base from '../layouts/Base.astro';
 import { artSources } from '../lib/art';
@@ -37,7 +37,7 @@ const heroPreloads = (await artSources(heroMobile, hero)).filter(
       <Hero />
       <Drones />
       <Payload />
-      <Fiber />
+      <Thermal />
       <Solutions />
       <Contact />
     </div>

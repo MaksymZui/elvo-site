@@ -6,9 +6,10 @@ zones change: the original 512 px band stays pixel for pixel.
 Input: .local/work/clean/<n>.png from inpaint.py
 Output: .local/work/wide/<n>.png, then Real-ESRGAN x4 into .local/work/wide-x4/
 
-Run: .local/venv/Scripts/python.exe -I scripts/assets/outpaint.py
+Run: .local/venv/Scripts/python.exe -I scripts/assets/outpaint.py [names...]
 """
 
+import sys
 from pathlib import Path
 
 import cv2
@@ -75,5 +76,5 @@ def extend(session: ort.InferenceSession, name: str) -> None:
 
 if __name__ == "__main__":
     session = ort.InferenceSession(str(MODEL), providers=["CPUExecutionProvider"])
-    for name in "1234":
+    for name in sys.argv[1:] or ["1", "2", "3", "7"]:
         extend(session, name)

@@ -26,14 +26,14 @@ export const site = {
     top: 'Home',
     drones: 'Drones',
     payload: 'Payload',
-    fiber: 'Fiber Optic',
+    thermal: 'Thermal Camera',
     solutions: 'Solutions',
     contact: 'Contact',
   },
   nav: [
     { label: 'Drones', href: '#drones' },
     { label: 'Payload', href: '#payload' },
-    { label: 'Fiber Optic', href: '#fiber' },
+    { label: 'Thermal Camera', href: '#thermal' },
     { label: 'Solutions', href: '#solutions' },
   ],
   hero: {
@@ -62,11 +62,11 @@ export const site = {
     text: 'High Performance Gimbals and Cameras for Professional UAV Applications.',
     imageAlt: 'Close view of a multi-lens gimbal camera',
   },
-  fiber: {
-    heading: [['Fiber Optic ', accent('Cable')]] as HeadingLines,
-    standard: 'G.657.A2',
-    text: 'Reliable connectivity for demanding applications.',
-    imageAlt: 'Coil of black fiber optic cable with glowing blue fibers at the open end',
+  thermal: {
+    heading: [['Eclipse ', accent('009CA')]] as HeadingLines,
+    text: 'Thermal Imaging Camera for RC FPV Racing Freestyle Drone DIY',
+    imageAlt:
+      'Eclipse 009CA thermal imaging camera with a yellow band on a dark reflective surface',
   },
   solutions: {
     heading: [['Professional'], [accent('Grade'), ' Solutions']] as HeadingLines,

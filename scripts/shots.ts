@@ -3,7 +3,7 @@ import { chromium, type Browser, type Page } from 'playwright';
 import { isPagesPreview, startPreview, URL_BASE } from './preview.ts';
 
 const OUT = '.local/shots';
-const SECTIONS = ['top', 'drones', 'payload', 'fiber', 'solutions', 'contact'];
+const SECTIONS = ['top', 'drones', 'payload', 'thermal', 'solutions', 'contact'];
 const CPU_SLOWDOWN = 4;
 const FRAME_BUDGET_MS = 33.4;
 /** Fixed elements land in the middle of a shot taller than the screen. */
@@ -94,7 +94,7 @@ async function checkAccessibility(page: Page, label: string): Promise<void> {
   if (!state.roles) fail(`${label}: slides have no group role`);
   expectEqual(
     state.labels,
-    'Home,Drones,Payload,Fiber Optic,Solutions,Contact',
+    'Home,Drones,Payload,Thermal Camera,Solutions,Contact',
     `${label}: labels`,
   );
   expectEqual(state.notification, 0, `${label}: live region`);
@@ -225,10 +225,10 @@ async function checkHashes(browser: Browser, viewport: Viewport): Promise<void> 
   const page = await context.newPage();
 
   await openSlider(page);
-  await page.getByRole('banner').getByRole('link', { name: 'Fiber Optic' }).click();
+  await page.getByRole('banner').getByRole('link', { name: 'Thermal Camera' }).click();
   await page.waitForTimeout(SETTLE_MS);
   expectEqual(await slideIndex(page), 3, `${label}: menu link`);
-  expectEqual(new URL(page.url()).hash, '#fiber', `${label}: url after menu link`);
+  expectEqual(new URL(page.url()).hash, '#thermal', `${label}: url after menu link`);
 
   await page.getByRole('banner').getByRole('link', { name: 'Contact' }).click();
   await page.waitForTimeout(SETTLE_MS);
@@ -286,13 +286,19 @@ async function checkSliderViewport(browser: Browser, viewport: Viewport): Promis
       const hidden = [...section.querySelectorAll('[data-reveal], [data-panel]')].filter(
         (el) => el.getClientRects().length > 0 && getComputedStyle(el).opacity !== '1',
       );
+      const glint = document.getAnimations().some((animation) => {
+        const target = (animation.effect as KeyframeEffect | null)?.target;
+        return target?.classList.contains('glint') && animation.playState === 'running';
+      });
       return {
         overflow: body.scrollHeight - body.clientHeight,
         stale: others.length,
         hidden: hidden.length,
+        glint,
       };
     }, id);
     if (slide.overflow > 0) fail(`${label}: slide ${id} is ${slide.overflow}px too tall`);
+    expectEqual(slide.glint, id === 'thermal', `${label}: lens glint on ${id}`);
     expectEqual(slide.stale, 0, `${label}: revealed slides besides ${id}`);
     expectEqual(slide.hidden, 0, `${label}: hidden elements on ${id}`);
   }
@@ -483,9 +489,9 @@ async function checkSectionLayout(page: Page, label: string, height: number): Pr
     const hero = sections[0]!;
     const features = hero.querySelector('.features')!.getBoundingClientRect();
     const photo = hero.querySelector('.stage__media')!.getBoundingClientRect();
-    const fiber = document.querySelector('#fiber')!;
-    const media = fiber.querySelector('.stage__media')!.getBoundingClientRect();
-    const copy = fiber.querySelector('.stage__copy')!.getBoundingClientRect();
+    const thermal = document.querySelector('#thermal')!;
+    const media = thermal.querySelector('.stage__media')!.getBoundingClientRect();
+    const copy = thermal.querySelector('.stage__copy')!.getBoundingClientRect();
 
     return {
       heroHeight: hero.offsetHeight,
@@ -670,6 +676,8 @@ async function expectScrollingPage(page: Page, label: string): Promise<void> {
     slider: document.documentElement.classList.contains('slider'),
     swiper: document.getElementById('main')!.classList.contains('swiper-initialized'),
     range: document.documentElement.scrollHeight - window.innerHeight,
+    running: document.getAnimations().filter((animation) => animation.playState === 'running')
+      .length,
     hidden: [...document.querySelectorAll('[data-reveal], [data-panel], .word__in')].filter(
       (el) => {
         const style = getComputedStyle(el);
@@ -682,6 +690,7 @@ async function expectScrollingPage(page: Page, label: string): Promise<void> {
   expectEqual(state.slider, false, `${label}: html.slider`);
   expectEqual(state.swiper, false, `${label}: swiper`);
   if (state.range <= 0) fail(`${label}: the page does not scroll`);
+  expectEqual(state.running, 0, `${label}: running animations`);
   expectEqual(state.hidden, 0, `${label}: hidden elements`);
   console.log(`${label}: ok`);
 }
@@ -700,13 +709,13 @@ async function checkFallbacks(browser: Browser): Promise<void> {
   await reducedPage.screenshot({ path: `${OUT}/reduced-motion.png` });
 
   // Text over the photo keeps its size: the section must not collapse to the height of the text
-  const stage = await reducedPage.evaluate(() => document.getElementById('fiber')!.offsetHeight);
+  const stage = await reducedPage.evaluate(() => document.getElementById('thermal')!.offsetHeight);
   expectEqual(stage, viewport.height, 'reduced motion: photo section height');
 
   // On a tablet it stacks, and then the section follows its content
   await reducedPage.setViewportSize({ width: 768, height: 1024 });
   await reducedPage.waitForTimeout(400);
-  const tablet = await reducedPage.evaluate(() => document.getElementById('fiber')!.offsetHeight);
+  const tablet = await reducedPage.evaluate(() => document.getElementById('thermal')!.offsetHeight);
   if (tablet >= 1024) fail(`reduced motion on a tablet: section is ${tablet}px`);
   await reduced.close();
 
@@ -714,7 +723,7 @@ async function checkFallbacks(browser: Browser): Promise<void> {
   const noScriptPage = await noScript.newPage();
   await noScriptPage.goto(URL_BASE, { waitUntil: 'load' });
   const text = (await noScriptPage.locator('main').innerText()).toUpperCase();
-  if (!text.includes('FIBER OPTIC') || !text.includes('SUPPORT@ELVO.TECHNOLOGY')) {
+  if (!text.includes('ECLIPSE 009CA') || !text.includes('SUPPORT@ELVO.TECHNOLOGY')) {
     fail('javascript off: content is missing');
   }
   await noScriptPage.screenshot({ path: `${OUT}/no-js.png` });

@@ -3,9 +3,10 @@
 Boxes are in source pixels. Full frames and portrait mobile crops come from the 16:10 masters in
 .local/work/wide-x4/ (1280x800), panels from the mockup masters in .local/work/x4/ (1280x512).
 
-Run: .local/venv/Scripts/python.exe -I scripts/assets/crops.py
+Run: .local/venv/Scripts/python.exe -I scripts/assets/crops.py [names...]
 """
 
+import sys
 from pathlib import Path
 
 from PIL import Image
@@ -19,7 +20,7 @@ SCALE = 4
 MAX_WIDTH = 2560
 QUALITY = 90
 
-FRAMES = {"hero": 1, "drones": 2, "payload": 3, "fiber": 4}
+FRAMES = {"hero": 1, "drones": 2, "payload": 3, "thermal": 7}
 
 # Same focus as the mockup crops, with height to spare: they fill half a phone screen
 WIDE_CROPS: dict[str, tuple[int, tuple[int, int, int, int]]] = {
@@ -27,7 +28,7 @@ WIDE_CROPS: dict[str, tuple[int, tuple[int, int, int, int]]] = {
     "drones-dji": (2, (235, 212, 775, 627)),
     "drones-autel": (2, (770, 225, 1280, 617)),
     "payload-mobile": (3, (0, 52, 640, 748)),
-    "fiber-mobile": (4, (470, 80, 1130, 797)),
+    "thermal-mobile": (7, (626, 84, 1238, 749)),
 }
 
 CROPS: dict[str, tuple[int, tuple[int, int, int, int]]] = {
@@ -51,17 +52,20 @@ def save(image: Image.Image, name: str) -> None:
     print(f"{path.name}: {image.width}x{image.height}, {path.stat().st_size / 1024:.0f} KB")
 
 
-def main() -> None:
+def main(names: list[str]) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for name, source in FRAMES.items():
-        save(Image.open(WIDE_X4 / f"{source}.png").convert("RGB"), name)
+        if not names or name in names:
+            save(Image.open(WIDE_X4 / f"{source}.png").convert("RGB"), name)
 
     for folder, crops in ((WIDE_X4, WIDE_CROPS), (X4, CROPS)):
         masters: dict[int, Image.Image] = {}
         for name, (source, box) in crops.items():
+            if names and name not in names:
+                continue
             master = masters.setdefault(source, Image.open(folder / f"{source}.png").convert("RGB"))
             save(master.crop(tuple(v * SCALE for v in box)), name)
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

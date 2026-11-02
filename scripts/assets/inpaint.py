@@ -1,11 +1,12 @@
-"""Remove text baked into docs/1-4.jpg with LaMa, tile by tile at native resolution.
+"""Remove text baked into docs/1-3.jpg and 7.jpg with LaMa, tile by tile at native resolution.
 
 Regions are solid boxes: a glyph-shaped mask leaves specks from JPEG halos, and the background
 under the text is smooth enough for a full fill. Output: .local/work/clean/<n>.png
 
-Run: .local/venv/Scripts/python.exe -I scripts/assets/inpaint.py
+Run: .local/venv/Scripts/python.exe -I scripts/assets/inpaint.py [names...]
 """
 
+import sys
 from pathlib import Path
 
 import cv2
@@ -37,10 +38,10 @@ REGIONS: dict[str, list[tuple[int, int, int, int]]] = {
     "3": [
         (664, 170, 1256, 354),  # heading and subheading
     ],
-    "4": [
-        (48, 34, 414, 124),  # logo and tagline
-        (52, 176, 598, 272),  # heading
-        (52, 288, 340, 386),  # divider and subheading
+    "7": [
+        (44, 28, 386, 114),  # logo and tagline
+        (50, 184, 560, 270),  # heading
+        (50, 270, 578, 376),  # divider and subheading
     ],
 }
 
@@ -49,6 +50,13 @@ SMOOTH: dict[str, list[tuple[int, int, int, int]]] = {
     "1": [(586, 238, 611, 284)],
     "2": [(58, 276, 134, 300), (542, 164, 562, 186)],
 }
+
+# Fills on a flat dark gradient sit 1-2 levels off their surroundings: a feathered blur hides the
+# box edges. Kept left of the light wedge, whose edge must stay sharp
+FEATHER: dict[str, list[tuple[int, int, int, int]]] = {
+    "7": [(30, 14, 400, 128), (36, 170, 420, 384)],
+}
+FEATHER_SIGMA = 8
 
 
 def inpaint_tile(session: ort.InferenceSession, tile: np.ndarray, mask: np.ndarray) -> np.ndarray:
@@ -89,6 +97,14 @@ def clean(session: ort.InferenceSession, name: str) -> None:
         hole[y0:y1, x0:x1] = 255
         result = cv2.inpaint(result, hole, 7, cv2.INPAINT_TELEA)
 
+    if name in FEATHER:
+        weight = np.zeros((height, width), np.float32)
+        for x0, y0, x1, y1 in FEATHER[name]:
+            weight[y0:y1, x0:x1] = 1
+        weight = cv2.GaussianBlur(weight, (0, 0), FEATHER_SIGMA)[..., None]
+        blurred = cv2.GaussianBlur(result.astype(np.float32), (0, 0), FEATHER_SIGMA)
+        result = (result * (1 - weight) + blurred * weight).round().astype(np.uint8)
+
     OUT.mkdir(parents=True, exist_ok=True)
     Image.fromarray(result).save(OUT / f"{name}.png")
     Image.fromarray(mask_preview).save(OUT / f"{name}-mask.png")
@@ -98,5 +114,5 @@ def clean(session: ort.InferenceSession, name: str) -> None:
 if __name__ == "__main__":
     session = ort.InferenceSession(str(MODEL), providers=["CPUExecutionProvider"])
     print([(i.name, i.shape) for i in session.get_inputs()])
-    for name in REGIONS:
+    for name in sys.argv[1:] or REGIONS:
         clean(session, name)

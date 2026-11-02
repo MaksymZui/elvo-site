@@ -1,0 +1,29 @@
+---
+import thermal from '../../assets/sections/thermal.webp';
+import thermalMobile from '../../assets/sections/thermal-mobile.webp';
+import { site } from '../../content/site';
+import ArtPicture from '../ArtPicture.astro';
+import Heading from '../Heading.astro';
+import Screen from '../Screen.astro';
+
+const { heading, text, imageAlt } = site.thermal;
+---
+
+<Screen id="thermal" class="stage">
+  <div class="stage__media">
+    <div class="frame" data-zoom>
+      <ArtPicture mobile={thermalMobile} desktop={thermal} alt={imageAlt} />
+      <span class="grain" aria-hidden="true"></span>
+      <div class="frame__map" aria-hidden="true">
+        <span class="glint"></span>
+      </div>
+    </div>
+  </div>
+  <div class="stage__copy px-gutter">
+    <Heading lines={heading} class="display--one-line normal-case" />
+    <span class="rule" aria-hidden="true" data-reveal></span>
+    <p class="subhead" data-reveal>
+      {text}
+    </p>
+  </div>
+</Screen>
